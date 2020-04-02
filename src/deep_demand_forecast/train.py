@@ -138,12 +138,16 @@ if __name__ == "__main__":
 
     logger.info(f"Root Relative Squared Error (RSE): {rse(agg_metrics, dataset.test)}")
 
-    with open(osp.join(args.output_dir, "train_agg_metrics.json"), "w", encoding="utf-8") as fout:
+    with open(
+        osp.join(args.output_dir, "train_agg_metrics.json"), "w", encoding="utf-8"
+    ) as fout:
         json.dump(agg_metrics, fout)
 
-    item_metrics.to_csv(osp.join(args.output_dir, "item_metrics.csv.gz"),
-                        index=False,
-                        encoding="utf-8",
-                        compression="gzip")
-    
+    item_metrics.to_csv(
+        osp.join(args.output_dir, "item_metrics.csv.gz"),
+        index=False,
+        encoding="utf-8",
+        compression="gzip",
+    )
+
     compare_two_item_metrics(item_metrics, "MASE", "sMAPE", args.output_dir)
