@@ -84,6 +84,15 @@ Resources:
           - sagemaker:DescribeTrainingJob
           - sagemaker:CreateProcessingJob
           - sagemaker:DescribeProcessingJob
+          - sagemaker:CreateModel
+          - sagemaker:DescribeEndpointConfig
+          - sagemaker:DescribeEndpoint
+          - sagemaker:CreateEndpointConfig
+          - sagemaker:CreateEndpoint
+          - sagemaker:DeleteEndpointConfig
+          - sagemaker:DeleteEndpoint
+          - sagemaker:DeleteModel
+          - sagemaker:InvokeEndpoint
           Resource:
           - !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:*"
         - Effect: Allow
@@ -98,6 +107,7 @@ Resources:
             - ecr:CompleteLayerUpload
             - ecr:UploadLayerPart
             - ecr:TagResource
+            - ecr:PutImage
           Resource:
           - "*"
           - !Sub "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
@@ -168,7 +178,7 @@ Resources:
       LifecycleConfigName: !GetAtt LifeCycleConfig.NotebookInstanceLifecycleConfigName
       NotebookInstanceName: deep-demand-forecast
       RoleArn: !GetAtt NotebookInstanceExecutionRole.Arn
-      VolumeSizeInGB: 20
+      VolumeSizeInGB: 100
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -184,7 +194,7 @@ Resources:
               !Join
               - ";"
               - - cd /home/ec2-user/SageMaker
-                - chown -R ec2-user:ec2-user .
+                - sudo chown -R ec2-user:ec2-user *
                 - !Join
                   - ""
                   - - aws s3 sync s3://
