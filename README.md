@@ -13,7 +13,7 @@ Demand forecasting deals with time-series data targeting various resource demand
 
 ## Deployment
 
-Please go to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](deploy/sagemaker-deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model in SageMaker [dee_demand_forecast](src/deep_demand_foreacst.ipynb) notebook.
+Please go to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](deploy/sagemaker-deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model in SageMaker [deep_demand_forecast](src/deep_demand_forecast.ipynb) notebook.
 
 As an example, notebook trains an LSTNet model on electricity data (only for 1 epoch) and we can compare its performance by visualizing [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error) vs. [sMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)
 
@@ -23,7 +23,7 @@ As an example, notebook trains an LSTNet model on electricity data (only for 1 e
 
 ## Architecture
 
-The project contains a 
+The project contains
 
 * [**Preprocessing**](src/preprocess) step, designed as a *microservice* that allows users to build and register their own Docker image for this task via [Amazon ECR](https://aws.amazon.com/ecr/) and execute the job in [Amazon SageMaker](https://aws.amazon.com/sagemaker/)
 * Interactive **training**, **evaluating** and **visualizing** the results in the provided [SageMaker notebook](source/deep_demand_forecast.ipynb)
