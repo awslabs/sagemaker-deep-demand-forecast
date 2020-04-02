@@ -1,0 +1,6 @@
+.vscode
+.ipynb_checkpoints
+.mypy*
+*data
+build
+output
