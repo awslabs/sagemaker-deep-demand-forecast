@@ -1,0 +1,2 @@
+matplotlib~=3.0
+git+git://github.com/awslabs/gluon-ts@master

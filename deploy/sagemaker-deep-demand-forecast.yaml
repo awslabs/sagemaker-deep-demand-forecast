@@ -1,0 +1,199 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "(SA0009) - sagemaker-deep-demand-forecast: Solution for training deep learning models for demand forecasting using Amazon SageMaker. Version 1"
+Parameters:
+  SolutionS3BucketName:
+    Description: Enter the name of the S3 bucket for the solution
+    Type: String
+  SageMakerNotebookInstanceType:
+    Description: Instance type of the SageMaker notebook instance
+    Type: String
+    Default:  "ml.t3.medium"
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      -
+        Label:
+          default: S3 Configuration
+        Parameters:
+          - SolutionS3BucketName
+      -
+        Label:
+          default: SageMaker Configuration
+        Parameters:
+          - SageMakerNotebookInstanceType
+    ParameterLabels:
+      SolutionS3BucketName:
+        default: Bucket Name
+      SageMakerNotebookInstanceType:
+        default: SageMaker Notebook Instance
+Mappings:
+  S3:
+    SolutionRef:
+      Bucket: "sagemaker-solutions-build-us-west-2"
+  Notebook:
+    Source:
+      S3Key: "sagemaker-deep-demand-forecast/src"
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: "Retain"
+    Properties:
+      BucketName: !Ref SolutionS3BucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          -
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: Configuring logging requires supplying an existing customer S3 bucket to store logs
+          - id: W51
+            reason: Default access policy suffices
+  NotebookInstanceExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - sagemaker.amazonaws.com
+            Action:
+            - 'sts:AssumeRole'
+  NotebookInstanceIAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: deep-demand-forecast-notebook-instance-policy
+      Roles:
+        - !Ref NotebookInstanceExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - sagemaker:CreateTrainingJob
+          - sagemaker:DescribeTrainingJob
+          - sagemaker:CreateProcessingJob
+          - sagemaker:DescribeProcessingJob
+          Resource:
+          - !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:*"
+        - Effect: Allow
+          Action:
+            - ecr:GetAuthorizationToken
+            - ecr:GetDownloadUrlForLayer
+            - ecr:BatchGetImage
+            - ecr:BatchCheckLayerAvailability
+            - ecr:CreateRepository
+            - ecr:DescribeRepositories
+            - ecr:InitiateLayerUpload
+            - ecr:CompleteLayerUpload
+            - ecr:UploadLayerPart
+            - ecr:TagResource
+          Resource:
+          - "*"
+          - !Sub "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
+        - Effect: Allow
+          Action:
+          - cloudwatch:PutMetricData
+          - cloudwatch:GetMetricData
+          - cloudwatch:GetMetricStatistics
+          - cloudwatch:ListMetrics
+          Resource:
+          - !Sub "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:*"
+        - Effect: Allow
+          Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:DescribeLogStreams
+          - logs:GetLogEvents
+          - logs:PutLogEvents
+          Resource:
+          - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/sagemaker/*"
+        - Effect: Allow
+          Action:
+          - iam:PassRole
+          Resource:
+          - !GetAtt NotebookInstanceExecutionRole.Arn
+          Condition:
+            StringEquals:
+              iam:PassedToService: sagemaker.amazonaws.com
+        - Effect: Allow
+          Action:
+          - iam:GetRole
+          Resource:
+          - !GetAtt NotebookInstanceExecutionRole.Arn
+        - Effect: Allow
+          Action:
+          - s3:ListBucket
+          - s3:GetObject
+          - s3:PutObject
+          - s3:DeleteObject
+          Resource:
+          - !Sub "arn:aws:s3:::${SolutionS3BucketName}"
+          - !Sub "arn:aws:s3:::${SolutionS3BucketName}/*"
+          - arn:aws:s3:::sagemaker-solutions-build-us-west-2
+          - arn:aws:s3:::sagemaker-solutions-build-us-west-2/sagemaker-deep-demand-forecast/*
+          - arn:aws:s3:::sagemaker-solutions-us-west-2
+          - arn:aws:s3:::sagemaker-solutions-us-west-2/sagemaker-deep-demand-forecast/*
+        - Effect: Allow
+          Action:
+          - s3:CreateBucket
+          - s3:ListBucket
+          - s3:GetObject
+          - s3:PutObject
+          - s3:DeleteObject
+          Resource:
+          - !Sub "arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}"
+          - !Sub "arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}/*"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W12
+            reason: ECR GetAuthorizationToken is non resource-specific action
+
+  NotebookInstance:
+    Type: AWS::SageMaker::NotebookInstance
+    Properties:
+      DirectInternetAccess: Enabled
+      InstanceType: !Ref SageMakerNotebookInstanceType
+      LifecycleConfigName: !GetAtt LifeCycleConfig.NotebookInstanceLifecycleConfigName
+      NotebookInstanceName: deep-demand-forecast
+      RoleArn: !GetAtt NotebookInstanceExecutionRole.Arn
+      VolumeSizeInGB: 20
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W1201
+            reason: Solution does not have KMS encryption enabled by default
+
+  LifeCycleConfig:
+    Type: AWS::SageMaker::NotebookInstanceLifecycleConfig
+    Properties:
+      OnStart:
+        - Content:
+            Fn::Base64:
+              !Join
+              - ";"
+              - - cd /home/ec2-user/SageMaker
+                - chown -R ec2-user:ec2-user .
+                - !Join
+                  - ""
+                  - - aws s3 sync s3://
+                    - !FindInMap [S3, SolutionRef, Bucket]
+                    - "/"
+                    - !FindInMap [Notebook, Source, S3Key]
+                    - " ."
+                - !Sub "sed -i 's/SAGEMAKER_S3_BUCKET/${SolutionS3BucketName}/g' deep-demand-forecast.ipynb"
+Outputs:
+  NotebookInstanceId:
+    Description: "SageMaker Notebook instance to manually orchestrate data preprocessing and model training"
+    Value: !Ref NotebookInstance
