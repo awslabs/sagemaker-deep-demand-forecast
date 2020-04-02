@@ -17,8 +17,9 @@ Please go to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in you
 
 As an example, notebook trains an LSTNet model on electricity data (only for 1 epoch) and we can compare its performance by visualizing [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error) vs. [sMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)
 
-
-![metrics](docs/MASE_vs_sMAPE.png "MASE vs. sMAPE"){:width="50%" height="50%"}
+<p align="center">
+  <img src="docs/MASE_vs_sMAPE.png" alt="MASE vs. sMAPE" width="700" height="900">
+</p>
 
 ## Architecture
 
@@ -31,7 +32,9 @@ The project contains a
 
 Here is the visual architecture
 
-![Solution Architecture](docs/arch.png "Solution Architecture")
+<p align="center">
+  <img src="docs/arch.png" alt="Solution Architecture" width="600" height="500">
+</p>
 
 ## License
 
