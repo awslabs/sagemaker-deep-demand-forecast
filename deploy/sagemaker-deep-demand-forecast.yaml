@@ -29,7 +29,7 @@ Metadata:
 Mappings:
   S3:
     SolutionRef:
-      Bucket: "sagemaker-solutions-build-us-west-2"
+      Bucket: "sagemaker-solutions-us-west-2"
   Notebook:
     Source:
       S3Key: "sagemaker-deep-demand-forecast/src"
@@ -150,8 +150,6 @@ Resources:
           Resource:
           - !Sub "arn:aws:s3:::${SolutionS3BucketName}"
           - !Sub "arn:aws:s3:::${SolutionS3BucketName}/*"
-          - arn:aws:s3:::sagemaker-solutions-build-us-west-2
-          - arn:aws:s3:::sagemaker-solutions-build-us-west-2/sagemaker-deep-demand-forecast/*
           - arn:aws:s3:::sagemaker-solutions-us-west-2
           - arn:aws:s3:::sagemaker-solutions-us-west-2/sagemaker-deep-demand-forecast/*
         - Effect: Allow
