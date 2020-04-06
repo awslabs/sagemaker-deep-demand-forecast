@@ -1,0 +1,12 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - start_time=`date +%s`
+      - chmod +x ./build.sh && ./build.sh $SOLUTION_NAME $BUILD_OUTPUT_BUCKET $BUILD_OUTPUT_REGION
+      - echo "Build completed" $start_time
+artifacts:
+  files:
+      - deploy/**/*
+      - src/**/*
