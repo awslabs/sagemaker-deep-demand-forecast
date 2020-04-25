@@ -201,7 +201,6 @@ Resources:
                     - " ."
                 - sudo chown -R ec2-user:ec2-user *
                 - !Sub "sed -i 's/SAGEMAKER_S3_BUCKET/${SolutionS3BucketName}/g' deep-demand-forecast.ipynb"
-                - sudo apt-get install chromium-chromedriver
 Outputs:
   NotebookInstanceId:
     Description: "SageMaker Notebook instance to manually orchestrate data preprocessing and model training"
