@@ -15,10 +15,9 @@ from gluonts.model.forecast import Forecast
 
 from data import load_dataset
 from metrics import rse
-from utils import get_logger, evaluate, compare_two_item_metrics
+from utils import get_logger, evaluate
 
 
-DATASET_NAME = os.getenv("DATASET_NAME", "electricity")
 LOG_CONFIG = os.getenv(
     "LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini"
 )
@@ -100,6 +99,7 @@ if __name__ == "__main__":
         default=os.environ["SM_MODEL_DIR"],
         help="model directory",
     )
+    aa("--dataset_name", type=str, help="name of an available dataset in GluonTS")
     aa("--epochs", type=int, default=1, help="number of epochs to train")
     aa("--context_length", type=int, help="past context length")
     aa("--prediction_length", type=int, help="future prediction length")
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger.info(f"Passed arguments: {args}")
 
-    dataset = load_dataset(DATASET_NAME, Path(args.dataset_path))
+    dataset = load_dataset(args.dataset_name, Path(args.dataset_path))
     logger.info(f"Train data shape: {next(iter(dataset.train))['target'].shape}")
     logger.info(f"Test data shape: {next(iter(dataset.test))['target'].shape}")
 
@@ -149,5 +149,3 @@ if __name__ == "__main__":
         encoding="utf-8",
         compression="gzip",
     )
-
-    compare_two_item_metrics(item_metrics, "MASE", "sMAPE", args.output_dir)
