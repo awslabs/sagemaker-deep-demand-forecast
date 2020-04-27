@@ -203,5 +203,9 @@ Resources:
                 - !Sub "sed -i 's/SAGEMAKER_S3_BUCKET/${SolutionS3BucketName}/g' deep-demand-forecast.ipynb"
 Outputs:
   NotebookInstanceId:
-    Description: "SageMaker Notebook instance to manually orchestrate data preprocessing and model training"
+    Description: "SageMaker Notebook instance id"
     Value: !Ref NotebookInstance
+  
+  SageMakerNotebookInstanceSignOn:
+    Description: "Link to the SageMaker notebook instance"
+    Value: !Sub "https://console.aws.amazon.com/sagemaker/home?region=${AWS::Region}#/notebook-instances/openNotebook/${NotebookInstance.NotebookInstanceName}?view=classic"
