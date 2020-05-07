@@ -1,9 +1,7 @@
-from typing import Iterator, Dict, Tuple, Any
 import os
 import os.path as osp
 from pathlib import Path
 import json
-import pickle
 
 import mxnet as mx
 
@@ -11,11 +9,10 @@ from gluonts.model.lstnet import LSTNetEstimator
 from gluonts.trainer import Trainer
 from gluonts.dataset.common import TrainDatasets
 from gluonts.model.predictor import Predictor
-from gluonts.model.forecast import Forecast
 
-from data import load_dataset
+from data import load_multivariate_datasets
 from metrics import rse
-from utils import get_logger, evaluate
+from utils import get_logger, evaluate, str2bool
 
 
 LOG_CONFIG = os.getenv(
@@ -34,9 +31,9 @@ def train(
     prediction_length: int,
     skip_size: int,
     ar_window: int,
-    rnn_num_layers: int,
-    skip_rnn_num_layers: int,
     channels: int,
+    scaling: bool,
+    output_activation: str,
     seed: int,
 ) -> Predictor:
     mx.random.seed(seed)
@@ -48,7 +45,7 @@ def train(
         "hybridize": True,
         "patience": 10,
         "learning_rate_decay_factor": 0.5,
-        "batch_size": 64,
+        "batch_size": 32,
         "learning_rate": 1e-2,
         "weight_decay": 1e-4,
     }
@@ -59,15 +56,13 @@ def train(
         "skip_size": skip_size,
         "ar_window": ar_window,
         "num_series": dataset.metadata.feat_static_cat[0].cardinality,
-        "rnn_num_layers": rnn_num_layers,
-        "skip_rnn_num_layers": skip_rnn_num_layers,
         "channels": channels,
-        "output_activation": None,
+        "output_activation": output_activation,
+        "scaling": scaling,
         "trainer": Trainer(**trainer_hyperparameters),
     }
     estimator = LSTNetEstimator(**model_hyperparameters)
     predictor = estimator.train(dataset.train)
-    logger.info("Training is done!")
     return predictor
 
 
@@ -84,7 +79,7 @@ if __name__ == "__main__":
     aa(
         "--dataset_path",
         type=str,
-        default=os.environ["SM_CHANNELS"],
+        default=os.environ["SM_CHANNEL_TRAINING"],
         help="path to the dataset",
     )
     aa(
@@ -99,20 +94,23 @@ if __name__ == "__main__":
         default=os.environ["SM_MODEL_DIR"],
         help="model directory",
     )
-    aa("--dataset_name", type=str, help="name of an available dataset in GluonTS")
     aa("--epochs", type=int, default=1, help="number of epochs to train")
     aa("--context_length", type=int, help="past context length")
     aa("--prediction_length", type=int, help="future prediction length")
     aa("--skip_size", type=int, help="LSTNet skip size")
     aa("--ar_window", type=int, help="LSTNet AR window linear part")
-    aa("--rnn_num_layers", type=int, help="LSTNet RNN (GRU) number of layers")
-    aa("--skip_rnn_num_layers", type=int, help="LSTNet skip RNN (GRU) number of layers")
     aa("--channels", type=int, help="number of channels for first conv1d layer")
+    aa("--scaling", type=str, help="whether to mean scale normalize the data")
+    aa(
+        "--output_activation",
+        type=str,
+        help="the activation function for the output, either `None`, `sigmoid` or `tanh`",
+    )
     aa("--seed", type=int, default=12, help="RNG seed")
     args = parser.parse_args()
     logger.info(f"Passed arguments: {args}")
 
-    dataset = load_dataset(args.dataset_name, Path(args.dataset_path))
+    dataset = load_multivariate_datasets(Path(args.dataset_path))
     logger.info(f"Train data shape: {next(iter(dataset.train))['target'].shape}")
     logger.info(f"Test data shape: {next(iter(dataset.test))['target'].shape}")
 
@@ -125,16 +123,18 @@ if __name__ == "__main__":
         args.prediction_length,
         args.skip_size,
         args.ar_window,
-        args.rnn_num_layers,
-        args.skip_rnn_num_layers,
         args.channels,
+        str2bool(args.scaling),
+        args.output_activation,
         args.seed,
     )
     # store serialized model artifacts
     save(predictor, args.model_dir)
     logger.info(f"Model serialized in {args.model_dir}")
 
-    forecasts, tss, agg_metrics, item_metrics = evaluate(predictor, dataset.test)
+    forecasts, tss, agg_metrics, item_metrics = evaluate(
+        predictor, dataset.test, num_samples=1
+    )
 
     logger.info(f"Root Relative Squared Error (RSE): {rse(agg_metrics, dataset.test)}")
 

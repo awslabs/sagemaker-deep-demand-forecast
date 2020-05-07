@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 from gluonts.dataset.util import to_pandas
 
-from data import load_dataset
+from data import load_multivariate_datasets
 from utils import get_logger
 
 
@@ -26,15 +26,15 @@ def multivar_df(ds):
             else:
                 tmp[k] = ds[k]
         tmp_df = to_pandas(tmp).to_frame().rename(columns={0: f"ts_{i}"})
-        df = pd.concat([df, tmp_df], axis=1, sort=False)
+        df = pd.concat([df, tmp_df], axis=1, sort=True)
 
     return df.reset_index().rename(columns={"index": "time"})
 
 
-def prepare_data(dataset_name):
-    dataset = load_dataset(dataset_name, Path("data"))
-    train_ds = next(iter(dataset.train))
-    test_ds = next(iter(dataset.test))
+def prepare_data(path: str):
+    ds = load_multivariate_datasets(Path(path))
+    train_ds = next(iter(ds.train))
+    test_ds = next(iter(ds.test))
     logger.info(
         f"original train data shape {train_ds['target'].shape}, test data shape {test_ds['target'].shape}"
     )
@@ -59,7 +59,7 @@ def create_data_viz(
     )
 
     selected_test_df = test_df.loc[:, ["time"] + selected_cols]
-    num_train = selected_train_df.shape[0]
+    num_train = selected_train_df.shape[0] - 1
     test_df_melt = pd.melt(
         selected_test_df.iloc[num_train : num_train + prediction_length],
         id_vars=["time"],
