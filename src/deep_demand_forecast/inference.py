@@ -1,10 +1,8 @@
-from typing import Iterator, Dict, Tuple, Any
+from typing import Any
 import os
 import os.path as osp
 from pathlib import Path
 import json
-
-import mxnet as mx
 
 from gluonts.dataset.common import ListDataset
 from gluonts.model.predictor import Predictor
@@ -41,7 +39,7 @@ def transform_fn(
         freq="H",
         one_dim_target=False,
     )
-    forecasts, tss, agg_metrics, _ = evaluate(model, request_list_data)
+    forecasts, tss, agg_metrics, _ = evaluate(model, request_list_data, num_samples=1)
     response_body = {}
     response_body["forecasts"] = {}
     response_body["forecasts"]["samples"] = forecasts[0].samples.tolist()

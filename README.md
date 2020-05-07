@@ -1,21 +1,20 @@
 # Deep Demand Forecasting with Amazon SageMaker
 
-This project provides an end-to-end solution for **Demand Forecasting** task using a new state-of-the-art *Deep Learning* model [LSTNet](https://arxiv.org/abs/1703.07015) available in [gluonts](https://github.com/awslabs/gluon-ts) and [Amazon SageMaker](https://aws.amazon.com/sagemaker/).
+This project provides an end-to-end solution for **Demand Forecasting** task using a new state-of-the-art *Deep Learning* model [LSTNet](https://arxiv.org/abs/1703.07015) available in [GluonTS](https://github.com/awslabs/gluon-ts) and [Amazon SageMaker](https://aws.amazon.com/sagemaker/).
 
 ## Demand Forecasting
 
-Demand forecasting deals with time-series data targeting various resource demands to streamline the decision-making process across businesses. Examples include predicting the number of
+Demand forecasting uses historical time-series data to help streamline the supply-demand decision-making process across businesses. Examples include predicting the number of
 
+* Customer representatives to hire for multiple locations in the next month
 * Product sales across multiple regions in the next quarter
-* Electricity consumption for multiple regions in next week
-* AWS cloud servers usage for next day for a video streaming service
-* Customer representatives to hire for multiple locations in next month
+* Cloud server usage for next day for a video streaming service
+* Electricity consumption for multiple regions over the next week
+* IoT devices and sensors such as energy consumption
 
-## Why Deep Learning methods?
+## Deep Learning for time-series forecasting
 
-The status quo approaches for time-series forecasting are auto-regressive methods such as [Auto Regressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average) (ARIMA), [Box-Jenkins](https://en.wikipedia.org/wiki/Box%E2%80%93Jenkins_method) and *State-Space models* for **uni-variate time-series** data and [Vector Autoregression](https://en.wikipedia.org/wiki/Vector_autoregression) (VAR) or Gaussian Processing (GP) non-parametric models for **multi-variant** time-series data. The use of Deep Learning (DL) models for (stationary/non-stationary) multi-variate time-series has been a point of research recently. DL methods shine when dealing with *large* number of (correlated) multivariate time-series data that have *categorical features* and (a lot of) *missing values*. Neural network models can predict seasonality for new events since these global models learn patterns *jointly* over the whole dataset and can extrapolate these learned regularities to new series.
-
-On the other hand, it is known that for classical methods, tedious data preprocessing and features generation need to be performed prior to model training and one main advantage of DL methods such as LSTNet is automating the feature generation step with better prediction power and fast GPU-enabled training and deployment.
+The most used approaches for time-series forecasting are auto-regressive methods such as [Auto Regressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average) (ARIMA) for **uni-variate time-series** data and [Vector Autoregression](https://en.wikipedia.org/wiki/Vector_autoregression) (VAR) for **multi-variate** time-series data. These methods often require tedious data preprocessing and features generation prior to model training. One main advantage of Deep Learning (DL) methods such as LSTNet is automating the feature generation step with better prediction power and fast GPU-enabled training and deployment. DL methods shine when dealing with *large* number of (correlated) multi-variate time-series data that have *categorical features* and (a lot of) *missing values*. Neural network models can predict seasonality for new events since these global models learn patterns *jointly* over the whole dataset and can better extrapolate these learned regularities to new series.
 
 ## Getting started
 
@@ -47,9 +46,6 @@ Then acknowledge adding the default [AWS IAM policy](https://aws.amazon.com/iam/
 *  Finally, click on **deep-demand-forecast.ipynb** notebook and follow the instruction inside the notebook
 
 
-
-
-
 Alternatively, you can clone this repository then navigate to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](deploy/sagemaker-deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model using the SageMaker [deep-demand-forecast](src/deep-demand-forecast.ipynb) notebook.
 
 ## What does `deep-demand-forecast.ipynb` offer?
@@ -58,7 +54,7 @@ The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazona
 
 <p align="center">
   <img src="docs/MASE_vs_sMAPE.gif" alt="MASE vs. sMAPE" width="350" height="300"/>
-  <img src="docs/MASE_vs_sMAPE_barplots.png" alt="MASE sMAPE barplots" width="600" height="300"/>
+  <img src="docs/MASE_sMAPE_barplots.png" alt="MASE sMAPE barplots" width="600" height="300"/>
 </p>
 
 Finally, we deploy an endpoint for the trained model and can interactively compare its performance by comparing the train, test data and predictions.
