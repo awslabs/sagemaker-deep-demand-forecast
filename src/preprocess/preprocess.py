@@ -22,6 +22,7 @@ class MaxNormalize:
     def max_normalize(data, scale: float = None):
         if scale is None:
             scale = np.max(np.abs(data["target"]))
+            scale = 1.0 if not scale else scale
         data["target"] /= scale
         return data, scale
 
