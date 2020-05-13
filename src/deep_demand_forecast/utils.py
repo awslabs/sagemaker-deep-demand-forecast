@@ -26,9 +26,7 @@ def evaluate(
     forecasts = list(forecast_it)
     tss = list(ts_it)
     evaluator = MultivariateEvaluator()
-    agg_metrics, item_metrics = evaluator(
-        iter(tss), iter(forecasts), num_series=len(test_data)
-    )
+    agg_metrics, item_metrics = evaluator(iter(tss), iter(forecasts), num_series=len(test_data))
     return forecasts, tss, agg_metrics, item_metrics
 
 

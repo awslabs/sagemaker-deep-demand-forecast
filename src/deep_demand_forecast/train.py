@@ -15,9 +15,7 @@ from metrics import rse
 from utils import get_logger, evaluate, str2bool
 
 
-LOG_CONFIG = os.getenv(
-    "LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini"
-)
+LOG_CONFIG = os.getenv("LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini")
 
 logger = get_logger(LOG_CONFIG)
 
@@ -83,16 +81,10 @@ if __name__ == "__main__":
         help="path to the dataset",
     )
     aa(
-        "--output_dir",
-        type=str,
-        default=os.environ["SM_OUTPUT_DATA_DIR"],
-        help="output directory",
+        "--output_dir", type=str, default=os.environ["SM_OUTPUT_DATA_DIR"], help="output directory",
     )
     aa(
-        "--model_dir",
-        type=str,
-        default=os.environ["SM_MODEL_DIR"],
-        help="model directory",
+        "--model_dir", type=str, default=os.environ["SM_MODEL_DIR"], help="model directory",
     )
     aa("--epochs", type=int, default=1, help="number of epochs to train")
     aa("--context_length", type=int, help="past context length")
@@ -132,15 +124,11 @@ if __name__ == "__main__":
     save(predictor, args.model_dir)
     logger.info(f"Model serialized in {args.model_dir}")
 
-    forecasts, tss, agg_metrics, item_metrics = evaluate(
-        predictor, dataset.test, num_samples=1
-    )
+    forecasts, tss, agg_metrics, item_metrics = evaluate(predictor, dataset.test, num_samples=1)
 
     logger.info(f"Root Relative Squared Error (RSE): {rse(agg_metrics, dataset.test)}")
 
-    with open(
-        osp.join(args.output_dir, "train_agg_metrics.json"), "w", encoding="utf-8"
-    ) as fout:
+    with open(osp.join(args.output_dir, "train_agg_metrics.json"), "w", encoding="utf-8") as fout:
         json.dump(agg_metrics, fout)
 
     item_metrics.to_csv(

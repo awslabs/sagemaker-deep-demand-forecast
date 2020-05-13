@@ -18,9 +18,7 @@ from deep_demand_forecast.utils import evaluate
 
 def create_multivariate_datasets(data_dir: str) -> None:
     info, train_ds, test_ds = default_synthetic()
-    save_datasets(
-        TrainDatasets(metadata=info.metadata, train=train_ds, test=test_ds), data_dir
-    )
+    save_datasets(TrainDatasets(metadata=info.metadata, train=train_ds, test=test_ds), data_dir)
     return
 
 
@@ -48,9 +46,7 @@ def test(tmpdir) -> None:
         seed=42,
     )
 
-    forecasts, tss, agg_metrics, item_metrics = evaluate(
-        predictor, datasets.test, num_samples=1
-    )
+    forecasts, tss, agg_metrics, item_metrics = evaluate(predictor, datasets.test, num_samples=1)
 
     save(predictor, model_dir)
 
@@ -61,8 +57,8 @@ def test(tmpdir) -> None:
     request_body["start"] = "2001-01-01"
     request_body["source"] = []
     ret, _ = transform_fn(predictor, json.dumps(request_body), None, None)
-    forecasts = np.array(ret["forecasts"]["samples"])
-    assert forecasts.shape == (1, prediction_length, 10)
+    forecast_samples = np.array(ret["forecasts"]["samples"])
+    assert forecast_samples.shape == (1, prediction_length, 10)
     agg_metrics = json.loads(ret["agg_metrics"])
     for metric in ["RMSE", "ND", "MAPE"]:
         assert agg_metrics[metric] < 1.5, f"assertion failed for metric: {metric}"
