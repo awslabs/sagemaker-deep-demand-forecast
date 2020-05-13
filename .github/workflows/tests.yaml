@@ -40,7 +40,7 @@ jobs:
         mypy --ignore-missing-imports src
     - name: Install test dependencies
       run: |
-        python -m pip install mxnet==1.6.0 gluonts
+        python -m pip install mxnet==1.6.0 gluonts pytest
     - name: Test with pytest
       run: |
         pytest --pyargs src
