@@ -51,7 +51,7 @@ def create_data_viz(train_df, test_df, context_length, prediction_length, num_sa
     train_df_melt = pd.melt(
         selected_train_df.tail(context_length), id_vars=["time"], value_vars=selected_cols,
     )
-
+    train_df_melt.rename(columns={"variable": "covariate"}, inplace=True)
     selected_test_df = test_df.loc[:, ["time"] + selected_cols]
     num_train = selected_train_df.shape[0] - 1
     test_df_melt = pd.melt(
@@ -59,4 +59,5 @@ def create_data_viz(train_df, test_df, context_length, prediction_length, num_sa
         id_vars=["time"],
         value_vars=selected_cols,
     )
+    test_df_melt.rename(columns={"variable": "covariate"}, inplace=True)
     return train_df_melt, test_df_melt, selected_cols

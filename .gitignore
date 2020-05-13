@@ -1,7 +1,8 @@
 __pycache__
 .vscode
-.ipynb_checkpoints
+.ipynb*
 .mypy*
+.pytest*
 *data
 build
 output

@@ -3,6 +3,7 @@ import os.path as osp
 from pathlib import Path
 import json
 
+import numpy as np
 import mxnet as mx
 
 from gluonts.model.lstnet import LSTNetEstimator
@@ -24,7 +25,6 @@ def train(
     dataset: TrainDatasets,
     output_dir: str,
     model_dir: str,
-    epochs: int,
     context_length: int,
     prediction_length: int,
     skip_size: int,
@@ -32,8 +32,12 @@ def train(
     channels: int,
     scaling: bool,
     output_activation: str,
+    epochs: int,
+    batch_size: int,
+    learning_rate: float,
     seed: int,
 ) -> Predictor:
+    np.random.seed(seed)
     mx.random.seed(seed)
     ctx = mx.gpu() if mx.context.num_gpus() else mx.cpu()
     logger.info(f"Using the context: {ctx}")
@@ -43,8 +47,8 @@ def train(
         "hybridize": True,
         "patience": 10,
         "learning_rate_decay_factor": 0.5,
-        "batch_size": 32,
-        "learning_rate": 1e-2,
+        "batch_size": batch_size,
+        "learning_rate": learning_rate,
         "weight_decay": 1e-4,
     }
     model_hyperparameters = {
@@ -86,7 +90,6 @@ if __name__ == "__main__":
     aa(
         "--model_dir", type=str, default=os.environ["SM_MODEL_DIR"], help="model directory",
     )
-    aa("--epochs", type=int, default=1, help="number of epochs to train")
     aa("--context_length", type=int, help="past context length")
     aa("--prediction_length", type=int, help="future prediction length")
     aa("--skip_size", type=int, help="LSTNet skip size")
@@ -98,6 +101,9 @@ if __name__ == "__main__":
         type=str,
         help="the activation function for the output, either `None`, `sigmoid` or `tanh`",
     )
+    aa("--epochs", type=int, default=1, help="number of epochs to train")
+    aa("--batch_size", type=int, default=32, help="batch size")
+    aa("--learning_rate", type=float, default=1e-2, help="learning rate")
     aa("--seed", type=int, default=12, help="RNG seed")
     args = parser.parse_args()
     logger.info(f"Passed arguments: {args}")
@@ -110,7 +116,6 @@ if __name__ == "__main__":
         dataset,
         args.output_dir,
         args.model_dir,
-        args.epochs,
         args.context_length,
         args.prediction_length,
         args.skip_size,
@@ -118,6 +123,9 @@ if __name__ == "__main__":
         args.channels,
         str2bool(args.scaling),
         args.output_activation,
+        args.epochs,
+        args.batch_size,
+        args.learning_rate,
         args.seed,
     )
     # store serialized model artifacts
