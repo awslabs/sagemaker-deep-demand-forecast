@@ -9,9 +9,7 @@ from data import load_multivariate_datasets
 from utils import get_logger
 
 
-LOG_CONFIG = os.getenv(
-    "LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini"
-)
+LOG_CONFIG = os.getenv("LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini")
 
 logger = get_logger(LOG_CONFIG)
 
@@ -44,18 +42,14 @@ def prepare_data(path: str):
     return train_df, test_df
 
 
-def create_data_viz(
-    train_df, test_df, context_length, prediction_length, num_sample_ts
-):
+def create_data_viz(train_df, test_df, context_length, prediction_length, num_sample_ts):
     num_sample_ts = min(num_sample_ts, train_df.shape[1])
     ts_col_names = list(train_df.columns)
     selected_cols = ts_col_names[1:num_sample_ts]
 
     selected_train_df = train_df.loc[:, ["time"] + selected_cols]
     train_df_melt = pd.melt(
-        selected_train_df.tail(context_length),
-        id_vars=["time"],
-        value_vars=selected_cols,
+        selected_train_df.tail(context_length), id_vars=["time"], value_vars=selected_cols,
     )
 
     selected_test_df = test_df.loc[:, ["time"] + selected_cols]

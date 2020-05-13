@@ -35,13 +35,10 @@ class MaxNormalize:
         if self.datasets.test is not None:
             test_scale = zip(iter(self.datasets.test), scales)
             test = ListDataset(
-                map(lambda x: self.max_normalize(x[0], x[1])[0], test_scale),
-                freq=self.freq,
+                map(lambda x: self.max_normalize(x[0], x[1])[0], test_scale), freq=self.freq,
             )
 
-        self.datasets = TrainDatasets(
-            metadata=self.datasets.metadata, train=train, test=test
-        )
+        self.datasets = TrainDatasets(metadata=self.datasets.metadata, train=train, test=test)
         return self
 
     def save_datasets(self, path, overwrite=True):

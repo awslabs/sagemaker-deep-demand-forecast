@@ -1,8 +1,11 @@
-from typing import Any
+# mypy: ignore-errors
+from typing import Any, List, Dict, Union
 import os
 import os.path as osp
 from pathlib import Path
 import json
+
+import numpy as np
 
 from gluonts.dataset.common import ListDataset
 from gluonts.model.predictor import Predictor
@@ -11,9 +14,7 @@ from gluonts.dataset.field_names import FieldName
 from utils import get_logger, evaluate
 
 
-LOG_CONFIG = os.getenv(
-    "LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini"
-)
+LOG_CONFIG = os.getenv("LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini")
 
 logger = get_logger(LOG_CONFIG)
 
@@ -24,9 +25,7 @@ def model_fn(model_dir: str) -> Predictor:
     return predictor
 
 
-def transform_fn(
-    model: Predictor, request_body: Any, content_type: Any, accept_type: Any
-):
+def transform_fn(model: Predictor, request_body: Any, content_type: Any, accept_type: Any):
     request_data = json.loads(request_body)
     # TODO: customize serde
     request_list_data = ListDataset(
