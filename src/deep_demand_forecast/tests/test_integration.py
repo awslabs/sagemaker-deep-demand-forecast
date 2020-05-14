@@ -1,6 +1,7 @@
 import os
 import sys
 
+# resolves pytest not finding parent module issue
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
@@ -11,9 +12,9 @@ from gluonts.dataset.common import TrainDatasets, save_datasets
 from gluonts.dataset.artificial import default_synthetic
 
 from data import load_multivariate_datasets
-from deep_demand_forecast.train import train, save
-from deep_demand_forecast.inference import model_fn, transform_fn
-from deep_demand_forecast.utils import evaluate
+from train import train, save
+from inference import model_fn, transform_fn
+from utils import evaluate
 
 
 def create_multivariate_datasets(data_dir: str) -> None:
@@ -35,7 +36,6 @@ def test(tmpdir) -> None:
         datasets,
         output_dir,
         model_dir,
-        epochs=1,
         context_length=12,
         prediction_length=prediction_length,
         skip_size=2,
@@ -43,6 +43,9 @@ def test(tmpdir) -> None:
         channels=6,
         scaling=False,
         output_activation="sigmoid",
+        epochs=1,
+        batch_size=5,
+        learning_rate=1e-2,
         seed=42,
     )
 
@@ -60,6 +63,6 @@ def test(tmpdir) -> None:
     forecast_samples = np.array(ret["forecasts"]["samples"])
     assert forecast_samples.shape == (1, prediction_length, 10)
     agg_metrics = json.loads(ret["agg_metrics"])
-    for metric in ["RMSE", "ND", "MAPE"]:
+    for metric in ["RMSE", "ND", "MSE"]:
         assert agg_metrics[metric] < 1.5, f"assertion failed for metric: {metric}"
     return
