@@ -4,5 +4,5 @@ __pycache__
 .mypy*
 .pytest*
 *data
-build
-output
+*build
+*output
