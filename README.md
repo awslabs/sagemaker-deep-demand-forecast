@@ -1,10 +1,14 @@
 # Deep Demand Forecasting with Amazon SageMaker
 
 <p align="center">
-<a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/actions"><img alt="Actions Status" src="https://github.com/awslabs/sagemaker-deep-demand-forecast/workflows/Tests/badge.svg"></a>
-<a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/blob/master/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/awslabs/sagemaker-deep-demand-forecast.svg"></a>
-<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-</p>
+  <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/actions"><img alt="Actions Status" src="https://github.com/awslabs/sagemaker-deep-demand-forecast/workflows/Tests/badge.svg"></a>
+  <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/blob/master/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/awslabs/sagemaker-deep-demand-forecast.svg"></a>
+  <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+  <br>
+  <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/graphs/commit-activity"><img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg"></a>
+  <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/issues/new?assignees=ehsanmok&labels=question&template=questions-or-general-feedbacks.md&title=%5BGeneral%5D"><img alt="AMA" src="https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg"></a>
+  <a href="https://github.com/ellerbrock/open-source-badges/"><img alt="OSS Love" src="https://badges.frapsoft.com/os/v1/open-source.png?v=103"></a>
+ </p>
 
 This project provides an end-to-end solution for **Demand Forecasting** task using a new state-of-the-art *Deep Learning* model [LSTNet](https://arxiv.org/abs/1703.07015) available in [GluonTS](https://github.com/awslabs/gluon-ts) and [Amazon SageMaker](https://aws.amazon.com/sagemaker/).
 
@@ -18,7 +22,7 @@ Demand forecasting uses historical time-series data to help streamline the suppl
 * Electricity consumption for multiple regions over the next week
 * IoT devices and sensors such as energy consumption
 
-## Deep Learning for time-series forecasting
+## Deep Learning for Time Series Forecasting
 
 The status quo approaches for time-series forecasting include:
 
@@ -29,7 +33,7 @@ These methods often require tedious data preprocessing and features generation p
 
 Please check out our [blog post](https://towardsdatascience.com/deep-demand-forecasting-with-amazon-sagemaker-e0226410763a) for more details.
 
-## Getting started
+## Getting Started
 
 You will need an AWS account to use this solution. Sign up for an account [here](https://aws.amazon.com/).
 
@@ -61,7 +65,7 @@ Then acknowledge adding the default [AWS IAM policy](https://aws.amazon.com/iam/
 
 Alternatively, you can clone this repository then navigate to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](deploy/sagemaker-deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model using the SageMaker [deep-demand-forecast](src/deep-demand-forecast.ipynb) notebook.
 
-## What does `deep-demand-forecast.ipynb` offer?
+## What Does `deep-demand-forecast.ipynb` Offer?
 
 The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazonaws.com/master/api/gluonts/gluonts.model.lstnet.html) estimator *on electricity consumption* data (for 5 epochs, for example) and we can compare its performance by visualizing the metrics [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error) vs. [sMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)
 
@@ -76,7 +80,7 @@ Finally, we deploy an endpoint for the trained model and can interactively compa
   <img src="docs/interactive_plots.gif" alt=interative" width="700" height="600"/>
 </p>
 
-## Architecture overview
+## Architecture Overview
 
 The project contains
 
