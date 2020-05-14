@@ -20,7 +20,14 @@ Demand forecasting uses historical time-series data to help streamline the suppl
 
 ## Deep Learning for time-series forecasting
 
-The most used approaches for time-series forecasting are auto-regressive methods such as [Auto Regressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average) (ARIMA) for **uni-variate time-series** data and [Vector Autoregression](https://en.wikipedia.org/wiki/Vector_autoregression) (VAR) for **multi-variate** time-series data. These methods often require tedious data preprocessing and features generation prior to model training. One main advantage of Deep Learning (DL) methods such as LSTNet is automating the feature generation step with better prediction power and fast GPU-enabled training and deployment. DL methods shine when dealing with *large* number of (correlated) multi-variate time-series data that have *categorical features* and (a lot of) *missing values*. Neural network models can predict seasonality for new events since these global models learn patterns *jointly* over the whole dataset and can better extrapolate these learned regularities to new series.
+The status quo approaches for time-series forecasting include:
+
+* [Auto Regressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average) (ARIMA) for **univariate** time-series data and 
+* [Vector Auto-Regression](https://en.wikipedia.org/wiki/Vector_autoregression) (VAR) for **multi-variate** time-series data 
+
+These methods often require tedious data preprocessing and features generation prior to model training. One main advantage of Deep Learning (DL) methods such as LSTNet is *automating the feature generation* step prior to model training such as incorporating various data normalization, lags, different time scales, some categorical data, dealing with missing values, etc. with better prediction power and fast GPU-enabled training and deployment.
+
+Please check out our [blog post](https://towardsdatascience.com/deep-demand-forecasting-with-amazon-sagemaker-e0226410763a) for more details.
 
 ## Getting started
 
