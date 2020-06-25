@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "(SA0009) - sagemaker-deep-demand-forecast: Solution for training deep learning models for demand forecasting using Amazon SageMaker. Version 1"
+Description: "(SA0009) - sagemaker-deep-demand-forecast:
+  Solution for training deep learning models for demand forecasting using Amazon SageMaker.
+  Version 1"
 Parameters:
   SolutionS3BucketName:
     Description: Enter the name of the S3 bucket for the solution
@@ -39,7 +41,8 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: "Retain"
     Properties:
-      BucketName: !Ref SolutionS3BucketName
+      BucketName:
+        !Sub "${AWS::StackName}-${AWS::Region}-${AWS::AccountId}-${SolutionS3BucketName}"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -205,7 +208,7 @@ Outputs:
   NotebookInstanceId:
     Description: "SageMaker Notebook instance id"
     Value: !Ref NotebookInstance
-  
+
   SageMakerNotebookInstanceSignOn:
     Description: "Link to the SageMaker notebook instance"
     Value: !Sub "https://console.aws.amazon.com/sagemaker/home?region=${AWS::Region}#/notebook-instances/openNotebook/${NotebookInstance.NotebookInstanceName}?view=classic"
