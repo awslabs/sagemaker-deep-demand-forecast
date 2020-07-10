@@ -42,7 +42,7 @@ Resources:
     UpdateReplacePolicy: "Retain"
     Properties:
       BucketName:
-        !Sub "${AWS::StackName}-${AWS::Region}-${AWS::AccountId}-${SolutionS3BucketName}"
+        !Sub "${AWS::StackName}-${AWS::Region}-${AWS::AccountId}"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
