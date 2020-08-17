@@ -180,7 +180,7 @@ Resources:
       DirectInternetAccess: Enabled
       InstanceType: !Ref SageMakerNotebookInstanceType
       LifecycleConfigName: !GetAtt LifeCycleConfig.NotebookInstanceLifecycleConfigName
-      NotebookInstanceName: !Sub ${AWS::StackName}-deep-demand-forecast
+      NotebookInstanceName: !Sub ${AWS::StackName}
       RoleArn: !GetAtt NotebookInstanceExecutionRole.Arn
       VolumeSizeInGB: 100
     Metadata:
@@ -206,7 +206,6 @@ Resources:
                     - !FindInMap [Notebook, Source, S3Key]
                     - " ."
                 - sudo chown -R ec2-user:ec2-user *
-                - !Sub "sed -i 's/SAGEMAKER_S3_BUCKET/${SolutionS3BucketName}/g' deep-demand-forecast.ipynb"
                 - source /home/ec2-user/anaconda3/bin/activate JupyterSystemEnv
                 - pip install --upgrade pip
                 - source /home/ec2-user/anaconda3/bin/activate mxnet_p36
