@@ -4,10 +4,15 @@ Description: "(SA0009) - sagemaker-deep-demand-forecast:
   Version 1"
 Parameters:
   SolutionS3BucketName:
-    Description: Enter the name of the S3 bucket for the solution
+    Description: |
+      Enter the name of the S3 bucket for the solution.
+      Leaving it empty assigns the default S3 bucket in your account automatically.
+      Note: Allowed names should follow the regex pattern [a-zA-Z0-9]*
     Type: String
+    Default: ""
+    AllowedPattern: "[a-zA-Z0-9]*"
   SageMakerNotebookInstanceType:
-    Description: Instance type of the SageMaker notebook instance
+    Description: Instance type of the SageMaker notebook instance to be used for this solution
     Type: String
     Default:  "ml.t3.medium"
 Metadata:
@@ -41,8 +46,6 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: "Retain"
     Properties:
-      BucketName:
-        !Sub "${AWS::StackName}-${AWS::Region}-${AWS::AccountId}"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -177,7 +180,7 @@ Resources:
       DirectInternetAccess: Enabled
       InstanceType: !Ref SageMakerNotebookInstanceType
       LifecycleConfigName: !GetAtt LifeCycleConfig.NotebookInstanceLifecycleConfigName
-      NotebookInstanceName: deep-demand-forecast
+      NotebookInstanceName: !Sub ${AWS::StackName}-deep-demand-forecast
       RoleArn: !GetAtt NotebookInstanceExecutionRole.Arn
       VolumeSizeInGB: 100
     Metadata:
@@ -204,6 +207,11 @@ Resources:
                     - " ."
                 - sudo chown -R ec2-user:ec2-user *
                 - !Sub "sed -i 's/SAGEMAKER_S3_BUCKET/${SolutionS3BucketName}/g' deep-demand-forecast.ipynb"
+                - source /home/ec2-user/anaconda3/bin/activate JupyterSystemEnv
+                - pip install --upgrade pip
+                - source /home/ec2-user/anaconda3/bin/activate mxnet_p36
+                - pip install -r ./deep_demand_forecast/requirements.txt
+                - pip install sagemaker --upgrade && pip install 'sagemaker[local]' --upgrade
 Outputs:
   NotebookInstanceId:
     Description: "SageMaker Notebook instance id"

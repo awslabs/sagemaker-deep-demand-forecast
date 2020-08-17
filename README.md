@@ -26,8 +26,8 @@ Demand forecasting uses historical time-series data to help streamline the suppl
 
 The status quo approaches for time-series forecasting include:
 
-* [Auto Regressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average) (ARIMA) for **univariate** time-series data and 
-* [Vector Auto-Regression](https://en.wikipedia.org/wiki/Vector_autoregression) (VAR) for **multi-variate** time-series data 
+* [Auto Regressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average) (ARIMA) for **univariate** time-series data and
+* [Vector Auto-Regression](https://en.wikipedia.org/wiki/Vector_autoregression) (VAR) for **multi-variate** time-series data
 
 These methods often require tedious data preprocessing and features generation prior to model training. One main advantage of Deep Learning (DL) methods such as LSTNet is *automating the feature generation* step prior to model training such as incorporating various data normalization, lags, different time scales, some categorical data, dealing with missing values, etc. with better prediction power and fast GPU-enabled training and deployment.
 
@@ -59,7 +59,7 @@ The easiest is to click on the following button to create the *AWS CloudFormatio
 Then acknowledge adding the default [AWS IAM policy](https://aws.amazon.com/iam/) or use your own policy
 
 *  Click on the **Create Stack** (you can leave the pre-specified *Stack name*, *S3 Bucket Name* and SageMaker Notebook Instance as they are)
-*  Once the stack was created, go to the **Outputs tab** and click on the **SageMakerNotebookInstanceSignOn** link to directly go to the created notebook instance 
+*  Once the stack was created, go to the **Outputs tab** and click on the **SageMakerNotebookInstanceSignOn** link to directly go to the created notebook instance
 *  Finally, click on **deep-demand-forecast.ipynb** notebook and follow the instruction inside the notebook
 
 
@@ -67,7 +67,7 @@ Alternatively, you can clone this repository then navigate to [AWS CloudFormatio
 
 ## What Does `deep-demand-forecast.ipynb` Offer?
 
-The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazonaws.com/master/api/gluonts/gluonts.model.lstnet.html) estimator *on electricity consumption* data (for 5 epochs, for example) and we can compare its performance by visualizing the metrics [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error) vs. [sMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)
+The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazonaws.com/master/api/gluonts/gluonts.model.lstnet.html) estimator [*on electricity consumption data*](https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014) which is multivariate timeseries dataset capturing the electricity consumption (in kW) with **15min** frequency from *2011-01-01* to *2014-05-26*. We compare the model performance by visualizing the metrics [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error) vs. [sMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)
 
 <p align="center">
   <img src="docs/MASE_vs_sMAPE.gif" alt="MASE vs. sMAPE" width="350" height="300"/>
