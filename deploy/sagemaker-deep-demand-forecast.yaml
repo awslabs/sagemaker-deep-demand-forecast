@@ -3,7 +3,7 @@ Description: "(SA0009) - sagemaker-deep-demand-forecast:
   Solution for training deep learning models for demand forecasting using Amazon SageMaker.
   Version 1"
 Parameters:
-  SolutionS3BucketName:
+  S3BucketName:
     Description: |
       Enter the name of the S3 bucket for the solution.
       Leaving it empty assigns the default S3 bucket in your account automatically.
@@ -15,29 +15,48 @@ Parameters:
     Description: Instance type of the SageMaker notebook instance to be used for this solution
     Type: String
     Default: "ml.t3.medium"
+  StackVersion:
+    Description: |
+      CloudFormation Stack version.
+      Use "release" version unless you are customizing the
+      CloudFormation templates and the solution artifacts in S3 bucket
+    Type: String
+    Default: release
+    AllowedValues:
+      - release
+      - dev
+  SolutionS3BucketName:
+    Description: |
+      Amazon S3 Bucket containing solution artifacts. Leave it empty if you are trying this solution.
+      Specify only if you are customizing the solution with your own artifacts
+    Type: String
+Conditions:
+  IsRelease: !Equals [!Ref StackVersion, release]
+Mappings:
+  SolutionsS3BucketNameBase:
+    Release:
+      Bucket: "sagemaker-solutions"
+    Dev:
+      Bucket: "sagemaker-solutions-build"
+  Notebook:
+    Source:
+      S3Key: "sagemaker-deep-demand-forecast/src"
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
           default: S3 Configuration
         Parameters:
-          - SolutionS3BucketName
+          - S3BucketName
       - Label:
           default: SageMaker Configuration
         Parameters:
           - SageMakerNotebookInstanceType
     ParameterLabels:
-      SolutionS3BucketName:
+      S3BucketName:
         default: Bucket Name
       SageMakerNotebookInstanceType:
         default: SageMaker Notebook Instance
-Mappings:
-  S3:
-    SolutionRef:
-      Bucket: "sagemaker-solutions-us-west-2"
-  Notebook:
-    Source:
-      S3Key: "sagemaker-deep-demand-forecast/src"
 Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
@@ -72,10 +91,16 @@ Resources:
                 - sagemaker.amazonaws.com
             Action:
               - "sts:AssumeRole"
+      RoleName: !Sub ${AWS::StackName}-${AWS::Region}-deep-demand-forecast-sagemaker-role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: Using explicit name to restrict permissions
   NotebookInstanceIAMPolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: deep-demand-forecast-notebook-instance-policy
+      PolicyName: !Sub "${AWS::StackName}-${AWS::Region}-deep-demand-forecast-instance-policy"
       Roles:
         - !Ref NotebookInstanceExecutionRole
       PolicyDocument:
@@ -147,14 +172,34 @@ Resources:
           - Effect: Allow
             Action:
               - s3:ListBucket
+            Resource: !Sub
+              - "arn:aws:s3:::${SolutionS3BucketName}-${AWS::Region}"
+              - SolutionS3BucketName:
+                  !If [
+                    IsRelease,
+                    !FindInMap [SolutionsS3BucketNameBase, Release, Bucket],
+                    !FindInMap [SolutionsS3BucketNameBase, Dev, Bucket],
+                  ]
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: !Sub
+              - "arn:aws:s3:::${SolutionS3BucketName}-${AWS::Region}/sagemaker-deep-demand-forecast/*"
+              - SolutionS3BucketName:
+                  !If [
+                    IsRelease,
+                    !FindInMap [SolutionsS3BucketNameBase, Release, Bucket],
+                    !FindInMap [SolutionsS3BucketNameBase, Dev, Bucket],
+                  ]
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
               - s3:GetObject
               - s3:PutObject
               - s3:DeleteObject
             Resource:
-              - !Sub "arn:aws:s3:::${SolutionS3BucketName}"
-              - !Sub "arn:aws:s3:::${SolutionS3BucketName}/*"
-              - arn:aws:s3:::sagemaker-solutions-us-west-2
-              - arn:aws:s3:::sagemaker-solutions-us-west-2/sagemaker-deep-demand-forecast/*
+              - !Sub "arn:aws:s3:::${S3BucketName}"
+              - !Sub "arn:aws:s3:::${S3BucketName}/*"
           - Effect: Allow
             Action:
               - s3:CreateBucket
@@ -208,7 +253,18 @@ Resources:
                 - !Join
                   - ""
                   - - aws s3 sync s3://
-                    - !FindInMap [S3, SolutionRef, Bucket]
+                    - !Sub
+                      - ${SolutionS3BucketName}-${AWS::Region}
+                      - SolutionS3BucketName:
+                          !If [
+                            IsRelease,
+                            !FindInMap [
+                              SolutionsS3BucketNameBase,
+                              Release,
+                              Bucket,
+                            ],
+                            !FindInMap [SolutionsS3BucketNameBase, Dev, Bucket],
+                          ]
                     - "/"
                     - !FindInMap [Notebook, Source, S3Key]
                     - " ."
