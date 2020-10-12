@@ -10,5 +10,7 @@ def load_multivariate_datasets(path: Path) -> TrainDatasets:
     grouper_train = MultivariateGrouper(max_target_dim=target_dim)
     grouper_test = MultivariateGrouper(max_target_dim=target_dim)
     return TrainDatasets(
-        metadata=ds.metadata, train=grouper_train(ds.train), test=grouper_test(ds.test),
+        metadata=ds.metadata,
+        train=grouper_train(ds.train),
+        test=grouper_test(ds.test),
     )

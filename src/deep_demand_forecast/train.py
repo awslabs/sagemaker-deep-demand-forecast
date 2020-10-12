@@ -85,10 +85,16 @@ if __name__ == "__main__":
         help="path to the dataset",
     )
     aa(
-        "--output_dir", type=str, default=os.environ["SM_OUTPUT_DATA_DIR"], help="output directory",
+        "--output_dir",
+        type=str,
+        default=os.environ["SM_OUTPUT_DATA_DIR"],
+        help="output directory",
     )
     aa(
-        "--model_dir", type=str, default=os.environ["SM_MODEL_DIR"], help="model directory",
+        "--model_dir",
+        type=str,
+        default=os.environ["SM_MODEL_DIR"],
+        help="model directory",
     )
     aa("--context_length", type=int, help="past context length")
     aa("--prediction_length", type=int, help="future prediction length")
