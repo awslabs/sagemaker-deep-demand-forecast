@@ -15,9 +15,7 @@ os.environ["PREPROCESSING_INPUT_DIR"] = "/opt/ml/processing/input"
 os.environ["PREPROCESSING_OUTPUT_DIR"] = "/opt/ml/processing/output"
 
 DATASET_NAME = "electricity"
-LOG_CONFIG = os.getenv(
-    "LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini"
-)
+LOG_CONFIG = os.getenv("LOG_CONFIG_PATH", Path(osp.abspath(__file__)).parent / "log.ini")
 
 
 def load_dataset(dataset_name: str, path: Path) -> TrainDatasets:
@@ -46,9 +44,7 @@ if __name__ == "__main__":
     dataset = load_dataset(DATASET_NAME, Path(args.data_dir))
 
     train_target = pd.DataFrame(next(iter(dataset.train))["target"])
-    train_target.describe().to_csv(
-        osp.join(args.output_dir, "train_target_summary.csv")
-    )
+    train_target.describe().to_csv(osp.join(args.output_dir, "train_target_summary.csv"))
     logger.info(f"train target shape: {train_target.shape}")
 
     test_target = pd.DataFrame(next(iter(dataset.test))["target"])
