@@ -1,0 +1,65 @@
+{
+    "id": "sagemaker-soln-ddf-",
+    "name": "Solution for training deep learning models for demand forecasting using Amazon SageMaker",
+    "shortName": "Deep Demand Forecasting",
+    "priority": 0,
+    "desc": "Using LSTNet GluonTS for Demand Forecasting task",
+    "meta": "Demand Forecasting with Deep Learning",
+    "tags": [
+        "supply decision making",
+        "demand forecasting",
+        "retail",
+        "time series",
+        "forecasting"
+    ],
+    "parameters": [
+        {
+            "name": "SolutionPrefix",
+            "type": "text",
+            "default": "sagemaker-soln-ddf-"
+        },
+        {
+            "name": "IamRole",
+            "type": "text",
+            "default": ""
+        },
+        {
+            "name": "SolutionS3BucketName",
+            "type": "text",
+            "default": ""
+        },
+        {
+            "name": "SageMakerNotebookInstanceType",
+            "type": "text",
+            "default": "ml.m4.xlarge"
+        },
+        {
+            "name": "CreateSageMakerNotebookInstance",
+            "type": "text",
+            "default": "false"
+        },
+        {
+            "name": "BuildSageMakerContainersRemotely",
+            "type": "text",
+            "default": "true"
+        },
+        {
+            "name": "StackVersion",
+            "type": "text",
+            "default": "release"
+        }
+    ],
+    "acknowledgements": [
+        "CAPABILITY_IAM",
+        "CAPABILITY_NAMED_IAM"
+    ],
+    "cloudFormationTemplate": "s3-us-east-2.amazonaws.com/sagemaker-solutions-us-east-2/sagemaker-deep-demand-forecast/cloudformation/deep-demand-forecast.yaml",
+    "serviceCatalogProduct": "TBD",
+    "copyS3Source": "sagemaker-solutions-us-east-2",
+    "copyS3SourcePrefix": "sagemaker-deep-demand-forecast/src",
+    "notebooksDirectory": "sagemaker-deep-demand-forecast/src",
+    "notebookPaths": [
+        "sagemaker-deep-demand-forecast/src/deep-demand-forecast.ipynb"
+    ],
+    "permissions": "TBD"
+}
