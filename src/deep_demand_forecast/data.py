@@ -5,7 +5,8 @@ from gluonts.dataset.common import TrainDatasets, load_datasets
 
 
 def load_multivariate_datasets(path: Path) -> TrainDatasets:
-    ds = load_datasets(path / "metadata", path / "train", path / "test")
+    metadata_path = path if path == Path("raw_data") else path / "metadata"
+    ds = load_datasets(metadata_path, path / "train", path / "test")
     target_dim = ds.metadata.feat_static_cat[0].cardinality
     grouper_train = MultivariateGrouper(max_target_dim=target_dim)
     grouper_test = MultivariateGrouper(max_target_dim=target_dim)
