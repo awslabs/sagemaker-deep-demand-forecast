@@ -73,14 +73,20 @@ Alternatively, you can clone this repository then navigate to [AWS CloudFormatio
 
 ## Contents
 
-* `cloudformation/sagemaker-deep-demand-forecast.yaml`: Creates the AWS stack for this solution
+* `cloudformation/`
+  * `deep-demand-forecast.yaml`: The root cloudformation nested stack which creates the AWS stack for this solution
+  * `deep-demand-forecast-sagemaker-notebook-instance.yaml`: Creates SageMaker notebook instance
+  * `deep-demand-forecast-permissions.yaml`: Manages all the permission necessary to launch the stack
+  * `deep-demand-forecast-endpoint.yaml`: Creates demo endpoint using in `demo.ipynb`
+  * `solution-assistant`: Deletes the created resources such as endpoint, S3 bucket etc. during cleanup
 * `src/`
   * `preprocess/`
-  * `container/`: To build and register the preprocessing ECR job
-    * `Dockerfile`: Docker container config
-    * `build_and_push.sh`: Build and push bash scripts used in `deep-demand-forecast.ipynb`
-    * `requirements.txt`: Dependencies for `preprocess.py`
-  * `preprocess.py`: Preprocessing script
+    * `container/`: To build and register the preprocessing ECR job
+      * `Dockerfile`: Docker container config
+      * `build_and_push.sh`: Build and push bash scripts used in `deep-demand-forecast.ipynb`
+      * `requirements.txt`: Dependencies for `preprocess.py`
+    * `container_build/`: Uses `CodeBuild` to the build the container for ECR
+    * `preprocess.py`: Preprocessing script
   * `deep_demand_forecast/`: Contains the train and inference code
     * `train.py`: SageMaker train code
     * `inference.py`: SageMaker inference code
@@ -89,6 +95,7 @@ Alternatively, you can clone this repository then navigate to [AWS CloudFormatio
     * `monitor.py`: Preparing results for visualization
     * `utils.py`: Helper functions
     * `requirements.txt`: Dependencies for SageMaker MXNet Estimator
+  * `demo.ipynb`: Demo notebook to quickly get some predictions from the demo endpoint
   * `deep-demand-forecast.ipynb`: See below
 
 
