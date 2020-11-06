@@ -1,0 +1,8 @@
+^dist/
+docs/launch.svg:4
+CODE_OF_CONDUCT.md:4
+CONTRIBUTING.md:50
+build/solution-assistant.zip
+build/sagemaker-deep-demand-forecast-preprocessing.zip
+cloudformation/deep-demand-forecast-permissions.yaml:118
+cloudformation/deep-demand-forecast-endpoint.yaml:42
