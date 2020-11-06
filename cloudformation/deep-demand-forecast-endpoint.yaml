@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "(SA0009) - deep-demand-forecast SageMaker endpoint stack"
+Parameters:
+  SolutionPrefix:
+    Type: String
+  SolutionName:
+    Type: String
+  SageMakerIAMRoleArn:
+    Type: String
+  SolutionRefBucketBase:
+    Type: String
+
+Resources:
+  Endpoint:
+    Type: "AWS::SageMaker::Endpoint"
+    Properties:
+      EndpointName: !Sub "${SolutionPrefix}-demo-endpoint"
+      EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+
+  EndpointConfig:
+    Type: "AWS::SageMaker::EndpointConfig"
+    Properties:
+      EndpointConfigName: !Sub "${SolutionPrefix}-demo-endpoint"
+      ProductionVariants:
+        - InitialInstanceCount: 1
+          InitialVariantWeight: 1.0
+          InstanceType: "ml.m4.xlarge"
+          ModelName: !GetAtt Model.ModelName
+          VariantName: !GetAtt Model.ModelName
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W1200
+            reason: Solution does not have KMS encryption enabled by default
+
+  Model:
+    Type: "AWS::SageMaker::Model"
+    Properties:
+      ModelName: !Sub "${SolutionPrefix}-demo-model"
+      PrimaryContainer:
+        ModelDataUrl: !Sub "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/build/model.tar.gz"
+        Image: !Sub "763104351884.dkr.ecr.${AWS::Region}.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+        Mode: "SingleModel"
+      ExecutionRoleArn: !Sub "${SageMakerIAMRoleArn}"
+
+Outputs:
+  EndpointName:
+    Description: Name of the demo endpoint
+    Value: !GetAtt Endpoint.EndpointName

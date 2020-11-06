@@ -1,0 +1,339 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "(SA0009) - deep-demand-forecast:
+  Solution for training deep learning models for demand forecasting using Amazon SageMaker.
+  Version 1"
+
+Parameters:
+  SolutionPrefix:
+    Type: String
+    Default: "sagemaker-soln-ddf-"
+    Description: |
+      Used to name resources created as part of this stack (and inside nested stacks too).
+      Can be the same as the stack name used by AWS CloudFormation, but this field has extra
+      constraints because it's used to name resources with restrictions (e.g. Amazon S3 bucket
+      names cannot contain capital letters).
+    AllowedPattern: '^sagemaker-soln-ddf[a-z0-9\-]{1,20}$'
+    ConstraintDescription: |
+      Only allowed to use lowercase letters, hyphens and/or numbers.
+      Should also start with 'sagemaker-soln-ddf-' for permission management.
+
+  SolutionName:
+    Description: |
+      Prefix for the solution name. Needs to be 'sagemaker-deep-demand-forecast'
+      or begin with  'sagemaker-deep-demand-forecast-' followed by a set of letters and hyphens.
+      Used to specify a particular directory on S3, that can correspond to a development branch.
+    Type: String
+    Default: "sagemaker-deep-demand-forecast"
+    AllowedPattern: '^sagemaker-deep-demand-forecast-?[a-z\-]*$'
+
+  IamRole:
+    Type: String
+    Default: ""
+    Description: |
+      IAM Role that will be attached to the resources created by this CloudFormation to grant them permissions to
+      perform their required functions. This role should allow SageMaker and Lambda perform the required actions like
+      creating training jobs and processing jobs. If left blank, the template will attempt to create a role for you.
+      This can cause a stack creation error if you don't have privileges to create new roles.
+
+  SageMakerNotebookInstanceType:
+    Description: SageMaker notebook instance type.
+    Type: String
+    Default: "ml.t3.medium"
+
+  CreateSageMakerNotebookInstance:
+    Description: Whether to launch sagemaker notebook instance
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "true"
+
+  BuildSageMakerContainersRemotely:
+    Description: |
+      Whether to launch a CodeBuild project to build sagemaker containers.
+      If set to 'true' SageMaker notebook will use the CodeBuild project to launch a build job for sagemaker containers.
+      If set to 'false' SageMaker notebook will attempt to build solution containers on the notebook instance.
+      This may lead to some unexpected issues as docker isn't installed in SageMaker studio containers.
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+
+  SageMakerProcessingJobContainerName:
+    Description: Name of the SageMaker processing job ECR Container
+    Type: String
+    Default: "sagemaker-soln-deep-demand-forecast-preprocessing"
+
+  StackVersion:
+    Description: |
+      CloudFormation Stack version.
+      Use "release" version unless you are customizing the
+      CloudFormation templates and the solution artifacts in S3 bucket
+    Type: String
+    Default: release
+    AllowedValues:
+      - release
+      - dev
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Solution Configuration"
+        Parameters:
+          - SolutionPrefix
+          - SolutionName
+          - IamRole
+      - Label:
+          default: "Advanced Configuration"
+        Parameters:
+          - SageMakerNotebookInstanceType
+          - CreateSageMakerNotebookInstance
+          - BuildSageMakerContainersRemotely
+          - SageMakerProcessingJobContainerName
+
+    ParameterLabels:
+      SolutionPrefix:
+        default: "Solution Resources Name Prefix"
+      SolutionName:
+        default: "Name of the solution"
+      IamRole:
+        default: "Solution IAM Role Arn"
+      CreateSageMakerNotebookInstance:
+        default: "Launch SageMaker Notebook Instance"
+      SageMakerNotebookInstanceType:
+        default: "SageMaker Notebook Instance Type"
+      BuildSageMakerContainersRemotely:
+        default: "Build SageMaker containers on AWS CodeBuild"
+      SageMakerProcessingJobContainerName:
+        default: SageMaker Processing Container Name
+      StackVersion:
+        default: "Solution Stack Version"
+
+Conditions:
+  CreateClassicSageMakerResources:
+    !Equals [!Ref CreateSageMakerNotebookInstance, "true"]
+  CreateCustomSolutionRole: !Equals [!Ref IamRole, ""]
+  CreateCodeBuildProject:
+    !Equals [!Ref BuildSageMakerContainersRemotely, "true"]
+
+Mappings:
+  S3:
+    release:
+      BucketPrefix: "sagemaker-solutions"
+    dev:
+      BucketPrefix: "sagemaker-solutions-build"
+  CodeBuild:
+    ProcessingContainer:
+      S3Key: "build/sagemaker-deep-demand-forecast-preprocessing.zip"
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: "Retain"
+    Properties:
+      BucketName: !Sub "${SolutionPrefix}-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: Configuring logging requires supplying an existing customer S3 bucket to store logs.
+          - id: W51
+            reason: Default access policy is sufficient.
+
+  SageMakerPermissionsStack:
+    Type: "AWS::CloudFormation::Stack"
+    Condition: CreateCustomSolutionRole
+    Properties:
+      TemplateURL: !Sub
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-permissions.yaml"
+        - SolutionRefBucketBase:
+            !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+      Parameters:
+        SolutionPrefix: !Ref SolutionPrefix
+        SolutionName: !Ref SolutionName
+        S3BucketName: !Ref S3Bucket
+        SolutionCodeBuildProject: !Sub "${SolutionPrefix}-processing-job-container-build"
+        StackVersion: !Ref StackVersion
+
+  SageMakerStack:
+    Type: "AWS::CloudFormation::Stack"
+    Condition: CreateClassicSageMakerResources
+    Properties:
+      TemplateURL: !Sub
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-sagemaker-notebook-instance.yaml"
+        - SolutionRefBucketBase:
+            !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+      Parameters:
+        SolutionPrefix: !Ref SolutionPrefix
+        SolutionName: !Ref SolutionName
+        SolutionS3Bucket: !Ref S3Bucket
+        SageMakerIAMRoleArn:
+          !If [
+            CreateCustomSolutionRole,
+            !GetAtt SageMakerPermissionsStack.Outputs.SageMakerRoleArn,
+            !Ref IamRole,
+          ]
+        SageMakerNotebookInstanceType: !Ref SageMakerNotebookInstanceType
+        SageMakerProcessingJobContainerBuild:
+          !If [
+            CreateCodeBuildProject,
+            !Ref ProcessingJobContainerBuild,
+            "local",
+          ]
+        SageMakerProcessingJobContainerName: !Ref SageMakerProcessingJobContainerName
+        StackVersion: !Ref StackVersion
+
+  ProcessingJobContainerBuild:
+    Condition: CreateCodeBuildProject
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub "${SolutionPrefix}-processing-job-container-build"
+      Description: !Sub "Build docker container for SageMaker Processing job for ${SolutionPrefix}"
+      ServiceRole:
+        !If [
+          CreateCustomSolutionRole,
+          !GetAtt SageMakerPermissionsStack.Outputs.SageMakerRoleArn,
+          !Ref IamRole,
+        ]
+      Source:
+        Type: S3
+        Location: !Sub
+          - "${SolutionRefBucketBase}-${AWS::Region}/${SolutionName}/${SourceKey}"
+          - SolutionRefBucketBase:
+              !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+            SourceKey: !FindInMap [CodeBuild, ProcessingContainer, S3Key]
+      Environment:
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/standard:4.0
+        Type: LINUX_CONTAINER
+        PrivilegedMode: True
+        EnvironmentVariables:
+          - Name: ecr_repository
+            Value: !Ref SageMakerProcessingJobContainerName
+          - Name: region
+            Value: !Ref AWS::Region
+          - Name: account_id
+            Value: !Ref AWS::AccountId
+      Artifacts:
+        Type: NO_ARTIFACTS
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W32
+            reason: overriding encryption requirements for codebuild
+
+  SageMakerEndpointStack:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      TemplateURL: !Sub
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-endpoint.yaml"
+        - SolutionRefBucketBase:
+            !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+      Parameters:
+        SolutionPrefix: !Ref SolutionPrefix
+        SolutionName: !Ref SolutionName
+        SageMakerIAMRoleArn:
+          !If [
+            CreateCustomSolutionRole,
+            !GetAtt SageMakerPermissionsStack.Outputs.SageMakerRoleArn,
+            !Ref IamRole,
+          ]
+        SolutionRefBucketBase: !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+
+  SolutionAssistantStack:
+    Type: "AWS::CloudFormation::Stack"
+    Properties:
+      TemplateURL: !Sub
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/solution-assistant/solution-assistant.yaml"
+        - SolutionRefBucketBase:
+            !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+      Parameters:
+        SolutionPrefix: !Ref SolutionPrefix
+        SolutionName: !Ref SolutionName
+        StackName: !Ref AWS::StackName
+        S3BucketName: !Ref S3Bucket
+        SolutionsS3BucketName: !Sub
+          - "${SolutionRefBucketBase}-${AWS::Region}"
+          - SolutionRefBucketBase:
+              !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+        RoleArn:
+          !If [
+            CreateCustomSolutionRole,
+            !GetAtt SageMakerPermissionsStack.Outputs.SageMakerRoleArn,
+            !Ref IamRole,
+          ]
+
+Outputs:
+  SolutionName:
+    Value: !Ref SolutionName
+
+  SourceCode:
+    Condition: CreateClassicSageMakerResources
+    Description: "Open Jupyter IDE. This authenticate you against Jupyter."
+    Value: !GetAtt SageMakerStack.Outputs.SourceCode
+
+  NotebookInstance:
+    Description: "SageMaker Notebook instance to manually orchestrate data preprocessing, model training and deploying an endpoint"
+    Value:
+      !If [
+        CreateClassicSageMakerResources,
+        !GetAtt SageMakerStack.Outputs.SageMakerNotebookInstanceSignOn,
+        "",
+      ]
+
+  AccountID:
+    Description: "AWS Account ID to be passed downstream to the notebook instance"
+    Value: !Ref AWS::AccountId
+
+  AWSRegion:
+    Description: "AWS Region to be passed downstream to the notebook instance"
+    Value: !Ref AWS::Region
+
+  IamRole:
+    Description: "Arn of SageMaker Execution Role"
+    Value:
+      !If [
+        CreateCustomSolutionRole,
+        !GetAtt SageMakerPermissionsStack.Outputs.SageMakerRoleArn,
+        !Ref IamRole,
+      ]
+
+  SolutionPrefix:
+    Description: "Solution Prefix for naming SageMaker transient resources"
+    Value: !Ref SolutionPrefix
+
+  SolutionS3Bucket:
+    Description: "Solution S3 bucket name"
+    Value: !Ref S3Bucket
+
+  SageMakerProcessingJobContainerBuild:
+    Description: "Code build project for remotely building the sagemaker preprocessing container"
+    Value:
+      !If [CreateCodeBuildProject, !Ref ProcessingJobContainerBuild, "local"]
+
+  SageMakerProcessingJobContainerName:
+    Description: "ECR Container name for SageMaker processing job"
+    Value: !Ref SageMakerProcessingJobContainerName
+
+  DemoEndpointName:
+    Description: "Name of the demo endpoint"
+    Value: !GetAtt SageMakerEndpointStack.Outputs.EndpointName
+
+  SageMakerMode:
+    Value: !If [CreateClassicSageMakerResources, "NotebookInstance", "Studio"]
+
+  StackName:
+    Value: !Ref AWS::StackName

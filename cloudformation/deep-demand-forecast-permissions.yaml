@@ -1,0 +1,182 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "(SA0009) - deep-demand-forecast SageMaker permission stack"
+Parameters:
+  SolutionPrefix:
+    Type: String
+  SolutionName:
+    Type: String
+  S3BucketName:
+    Type: String
+  SolutionCodeBuildProject:
+    Type: String
+  StackVersion:
+    Type: String
+
+Mappings:
+  S3:
+    release:
+      BucketPrefix: "sagemaker-solutions"
+    dev:
+      BucketPrefix: "sagemaker-solutions-build"
+
+Resources:
+  SageMakerIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${SolutionPrefix}-${AWS::Region}-nb-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !Sub "arn:aws:iam::${AWS::AccountId}:root"
+              Service:
+                - sagemaker.amazonaws.com
+                - codebuild.amazonaws.com
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: Needs to be explicitly named to tighten launch permissions policy
+
+  SageMakerIAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${SolutionPrefix}-nb-instance-policy"
+      Roles:
+        - !Ref SageMakerIAMRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sagemaker:CreateTrainingJob
+              - sagemaker:DescribeTrainingJob
+              - sagemaker:CreateProcessingJob
+              - sagemaker:DescribeProcessingJob
+              - sagemaker:CreateModel
+              - sagemaker:DescribeEndpointConfig
+              - sagemaker:DescribeEndpoint
+              - sagemaker:CreateEndpointConfig
+              - sagemaker:CreateEndpoint
+              - sagemaker:DeleteEndpointConfig
+              - sagemaker:DeleteEndpoint
+              - sagemaker:DeleteModel
+              - sagemaker:InvokeEndpoint
+            Resource:
+              - !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:*"
+          - Effect: Allow
+            Action:
+              - cloudwatch:GetMetricData
+              - cloudwatch:GetMetricStatistics
+              - cloudwatch:ListMetrics
+              - cloudwatch:PutMetricData
+            Resource:
+              - !Sub "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:*"
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:DescribeLogStreams
+              - logs:GetLogEvents
+              - logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/sagemaker/*"
+              - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
+          - Effect: Allow
+            Action:
+              - iam:PassRole
+            Resource:
+              - !GetAtt SageMakerIAMRole.Arn
+            Condition:
+              StringEquals:
+                iam:PassedToService: sagemaker.amazonaws.com
+          - Effect: Allow
+            Action:
+              - iam:GetRole
+            Resource:
+              - !GetAtt SageMakerIAMRole.Arn
+          - Effect: Allow
+            Action:
+              - ecr:GetAuthorizationToken
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - ecr:BatchCheckLayerAvailability
+              - ecr:CreateRepository
+              - ecr:DescribeRepositories
+              - ecr:InitiateLayerUpload
+              - ecr:CompleteLayerUpload
+              - ecr:UploadLayerPart
+              - ecr:TagResource
+              - ecr:PutImage
+              - ecr:DescribeImages
+              - ecr:BatchDeleteImage
+            Resource:
+              - "*"
+              - !Sub "arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/*"
+          - Effect: Allow
+            Action:
+              - codebuild:BatchGetBuilds
+              - codebuild:StartBuild
+            Resource:
+              - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${SolutionCodeBuildProject}"
+              - !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:build/*"
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource: !Sub
+              - "arn:aws:s3:::${SolutionS3BucketName}-${AWS::Region}"
+              - SolutionS3BucketName:
+                  !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: !Sub
+              - "arn:aws:s3:::${SolutionS3BucketName}-${AWS::Region}/${SolutionName}/*"
+              - SolutionS3BucketName:
+                  !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+                SolutionName: !Ref SolutionName
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:DeleteBucket
+              - s3:GetBucketLocation
+              - s3:ListBucketMultipartUploads
+            Resource:
+              - !Sub "arn:aws:s3:::${S3BucketName}"
+          - Effect: Allow
+            Action:
+              - s3:AbortMultipartUpload
+              - s3:ListObject
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+            Resource:
+              - !Sub "arn:aws:s3:::${S3BucketName}"
+              - !Sub "arn:aws:s3:::${S3BucketName}/*"
+          - Effect: Allow
+            Action:
+              - s3:CreateBucket
+              - s3:ListBucket
+              - s3:GetObject
+              - s3:GetObjectVersion
+              - s3:PutObject
+              - s3:DeleteObject
+            Resource:
+              - !Sub "arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}"
+              - !Sub "arn:aws:s3:::sagemaker-${AWS::Region}-${AWS::AccountId}/*"
+
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W12
+            reason: ECR GetAuthorizationToken is non resource-specific action
+
+Outputs:
+  SageMakerRoleArn:
+    Description: "SageMaker Execution Role for the solution"
+    Value: !GetAtt SageMakerIAMRole.Arn

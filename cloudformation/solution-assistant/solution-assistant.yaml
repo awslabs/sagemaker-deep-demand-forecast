@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "(SA0009) - sagemaker-deep-demand-forecast
+  Solution for training deep learning models for demand forecasting using Amazon SageMaker solution assistant stack.
+  Version 1"
+
+Parameters:
+  SolutionPrefix:
+    Type: String
+  SolutionName:
+    Type: String
+  StackName:
+    Type: String
+  S3BucketName:
+    Type: String
+  SolutionsS3BucketName:
+    Type: String
+  RoleArn:
+    Type: String
+
+Mappings:
+  Function:
+    SolutionAssistant:
+      S3Key: "build/solution-assistant.zip"
+
+Resources:
+  SolutionAssistant:
+    Type: "Custom::SolutionAssistant"
+    Properties:
+      SolutionPrefix: !Ref SolutionPrefix
+      ServiceToken: !GetAtt SolutionAssistantLambda.Arn
+      S3BucketName: !Ref S3BucketName
+      StackName: !Ref StackName
+
+  SolutionAssistantLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: "lambda_fn.handler"
+      FunctionName: !Sub "${SolutionPrefix}-solution-assistant"
+      Role: !Ref RoleArn
+      Runtime: "python3.8"
+      Code:
+        S3Bucket: !Ref SolutionsS3BucketName
+        S3Key: !Sub
+          - "${SolutionName}/${LambdaS3Key}"
+          - LambdaS3Key: !FindInMap [Function, SolutionAssistant, S3Key]
+      Timeout: 60
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: >-
+              The required permissions are provided in the permissions stack.

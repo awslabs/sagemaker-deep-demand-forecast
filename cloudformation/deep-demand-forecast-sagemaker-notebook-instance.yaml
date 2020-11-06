@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "(SA0009) - deep-demand-forecast SageMaker notebook stack"
+Parameters:
+  SolutionPrefix:
+    Type: String
+  SolutionName:
+    Type: String
+  SolutionS3Bucket:
+    Type: String
+  SageMakerIAMRoleArn:
+    Type: String
+  SageMakerNotebookInstanceType:
+    Type: String
+  SageMakerProcessingJobContainerBuild:
+    Type: String
+  SageMakerProcessingJobContainerName:
+    Description: Name of the SageMaker processing job ECR Container
+    Type: String
+  StackVersion:
+    Type: String
+
+Mappings:
+  S3:
+    release:
+      BucketPrefix: "sagemaker-solutions"
+    dev:
+      BucketPrefix: "sagemaker-solutions-build"
+
+Resources:
+  NotebookInstance:
+    Type: AWS::SageMaker::NotebookInstance
+    Properties:
+      DirectInternetAccess: Enabled
+      InstanceType: !Ref SageMakerNotebookInstanceType
+      LifecycleConfigName: !GetAtt LifeCycleConfig.NotebookInstanceLifecycleConfigName
+      NotebookInstanceName: !Sub "${SolutionName}"
+      RoleArn: !Sub "${SageMakerIAMRoleArn}"
+      VolumeSizeInGB: 100
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W1201
+            reason: Solution does not have KMS encryption enabled by default
+  LifeCycleConfig:
+    Type: AWS::SageMaker::NotebookInstanceLifecycleConfig
+    Properties:
+      NotebookInstanceLifecycleConfigName: !Sub "${SolutionName}-nb-lifecycle-config"
+      OnStart:
+        - Content:
+            Fn::Base64: |
+              set -e
+              sudo -u ec2-user -i <<EOF
+              cd /home/ec2-user/SageMaker
+              source /home/ec2-user/anaconda3/bin/activate mxnet_p36
+              python -m pip install -r deep_demand_forecast/requirements.txt
+              source /home/ec2-user/anaconda3/bin/deactivate
+              EOF
+      OnCreate:
+        - Content:
+            Fn::Base64: !Sub
+              - |
+                set -e
+                # Perform following actions as ec2-user.
+                sudo -u ec2-user -i <<EOF
+                cd /home/ec2-user/SageMaker
+                # Copy source files.
+                aws s3 sync s3://${SolutionsRefBucketBase}-${AWS::Region}/${SolutionName}/src .
+                # Set useful solution specific variables via config file.
+                touch stack_outputs.json
+                echo '{' >> stack_outputs.json
+                echo '  "AccountID": "${AWS::AccountId}",' >> stack_outputs.json
+                echo '  "AWSRegion": "${AWS::Region}",' >> stack_outputs.json
+                echo '  "IamRole": "${SageMakerIAMRoleArn}",' >> stack_outputs.json
+                echo '  "SolutionPrefix": "${SolutionPrefix}",' >> stack_outputs.json
+                echo '  "SolutionName": "${SolutionName}",' >> stack_outputs.json
+                echo '  "SolutionS3Bucket": "${SolutionS3Bucket}",' >> stack_outputs.json
+                echo '  "SageMakerProcessingJobContainerName": "${SageMakerProcessingJobContainerName}",' >> stack_outputs.json
+                echo '  "SageMakerProcessingJobContainerBuild": "${SageMakerProcessingJobContainerBuild}"' >> stack_outputs.json
+                echo '}' >> stack_outputs.json
+                cat stack_outputs.json
+                sudo chown -R ec2-user:ec2-user *
+                EOF
+              - SolutionsRefBucketBase:
+                  !FindInMap [S3, !Ref StackVersion, BucketPrefix]
+
+Outputs:
+  SourceCode:
+    Description: "Open Jupyter IDE. This authenticate you against Jupyter."
+    Value: !Sub "https://${NotebookInstance.NotebookInstanceName}.notebook.${AWS::Region}.sagemaker.aws/"
+
+  SageMakerNotebookInstanceSignOn:
+    Description: "Link to the SageMaker notebook instance"
+    Value: !Sub "https://${NotebookInstance.NotebookInstanceName}.notebook.${AWS::Region}.sagemaker.aws/notebooks/"
