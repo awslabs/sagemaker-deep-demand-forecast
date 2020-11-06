@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/actions"><img alt="Actions Status" src="https://github.com/awslabs/sagemaker-deep-demand-forecast/workflows/Tests/badge.svg"></a>
-  <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/blob/master/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/awslabs/sagemaker-deep-demand-forecast.svg"></a>
+  <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/blob/mainline/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/awslabs/sagemaker-deep-demand-forecast.svg"></a>
   <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
   <br>
   <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/graphs/commit-activity"><img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg"></a>
@@ -49,7 +49,7 @@ The easiest is to click on the following button to create the *AWS CloudFormatio
     <td>Oregon</td>
     <td>us-west-2</td>
     <td align="center">
-      <a href="https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://sagemaker-solutions-us-west-2.s3-us-west-2.amazonaws.com/sagemaker-deep-demand-forecast/deploy/sagemaker-deep-demand-forecast.yaml&stackName=sm-soln-demand">
+      <a href="https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://sagemaker-solutions-us-west-2.s3-us-west-2.amazonaws.com/sagemaker-deep-demand-forecast/cloudformation/sagemaker-deep-demand-forecast.yaml&stackName=sagemaker-soln-ddf-">
         <img src="docs/launch.svg" height="35">
       </a>
     </td>
@@ -63,7 +63,7 @@ Then acknowledge adding the default [AWS IAM policy](https://aws.amazon.com/iam/
 *  Finally, click on **deep-demand-forecast.ipynb** notebook and follow the instruction inside the notebook
 
 
-Alternatively, you can clone this repository then navigate to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](deploy/sagemaker-deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model using the SageMaker [deep-demand-forecast](src/deep-demand-forecast.ipynb) notebook.
+Alternatively, you can clone this repository then navigate to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](cloudformation/sagemaker-deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model using the SageMaker [deep-demand-forecast](src/deep-demand-forecast.ipynb) notebook.
 
 <p align="center">
   <a href="https://youtu.be/A04TT68Bd8A">
@@ -73,7 +73,7 @@ Alternatively, you can clone this repository then navigate to [AWS CloudFormatio
 
 ## Contents
 
-* `deploy/sagemaker-deep-demand-forecast.yaml`: Creates the AWS stack for this solution
+* `cloudformation/sagemaker-deep-demand-forecast.yaml`: Creates the AWS stack for this solution
 * `src/`
   * `preprocess/`
   * `container/`: To build and register the preprocessing ECR job
