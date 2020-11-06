@@ -8,5 +8,12 @@ phases:
       - echo "Build completed" $start_time
 artifacts:
   files:
-      - deploy/**/*
-      - src/**/*
+    - cloudformation/**/*
+    - iam/**/*
+    - metadata/**/*
+    - src/**/*
+    - docs/**/*
+    - README.md
+    - .viperlightignore
+    - .viperlightrc
+    - .gitignore
