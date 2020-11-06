@@ -3,6 +3,7 @@ import sys
 import time
 from .logs import logs_for_build
 
+
 def build(project_name, session=boto3.session.Session(), log=True):
     print("Starting a build job for CodeBuild project: {}".format(project_name))
     id = _start_build(session, project_name)
@@ -10,6 +11,7 @@ def build(project_name, session=boto3.session.Session(), log=True):
         logs_for_build(id, wait=True, session=session)
     else:
         _wait_for_build(id, session)
+
 
 def _start_build(session, project_name):
     args = {"projectName": project_name}

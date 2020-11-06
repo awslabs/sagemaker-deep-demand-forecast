@@ -116,9 +116,7 @@ def logs_for_build(
 
     job_already_completed = False if status == "IN_PROGRESS" else True
 
-    state = (
-        LogState.STARTING if wait and not job_already_completed else LogState.COMPLETE
-    )
+    state = LogState.STARTING if wait and not job_already_completed else LogState.COMPLETE
     dot = True
 
     while state == LogState.STARTING and log_group == None:
