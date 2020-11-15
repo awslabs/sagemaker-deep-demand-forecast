@@ -64,7 +64,7 @@ Then acknowledge adding the default [AWS IAM policy](https://aws.amazon.com/iam/
 *  Finally, click on **deep-demand-forecast.ipynb** notebook and follow the instructions inside the notebook
 
 
-Alternatively, you can clone this repository then navigate to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](cloudformation/sagemaker-deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model using the SageMaker [deep-demand-forecast](src/deep-demand-forecast.ipynb) notebook.
+Alternatively, you can clone this repository then navigate to [AWS CloudFormation](https://aws.amazon.com/cloudformation/) in your account and use the provided [CloudFormation template](cloudformation/deep-demand-forecast.yaml) to create the AWS resources needed to train and deploy the model using the SageMaker [deep-demand-forecast](src/deep-demand-forecast.ipynb) notebook.
 
 <p align="center">
   <a href="https://youtu.be/A04TT68Bd8A">
