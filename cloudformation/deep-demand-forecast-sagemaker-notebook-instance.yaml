@@ -65,6 +65,7 @@ Resources:
                 cd /home/ec2-user/SageMaker
                 # Copy source files.
                 aws s3 sync s3://${SolutionsRefBucketBase}-${AWS::Region}/${SolutionName}/src .
+                sed -s -i 's/HUB_1P_IMAGE/conda_mxnet_p36/g' *.ipynb
                 # Set useful solution specific variables via config file.
                 touch stack_outputs.json
                 echo '{' >> stack_outputs.json
