@@ -10,6 +10,43 @@ Parameters:
   SolutionRefBucketBase:
     Type: String
 
+Mappings:
+  RegionMap:
+    us-east-1:
+      "MXNetInference": "763104351884.dkr.ecr.us-east-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    us-east-2:
+      "MXNetInference": "763104351884.dkr.ecr.us-east-2.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    us-west-2:
+      "MXNetInference": "763104351884.dkr.ecr.us-west-2.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    ap-northeast-1:
+      "MXNetInference": "763104351884.dkr.ecr.ap-northeast-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    ap-northeast-2:
+      "MXNetInference": "763104351884.dkr.ecr.ap-northeast-2.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    ap-east-1:
+      "MXNetInference": "763104351884.dkr.ecr.ap-east-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    ap-south-1:
+      "MXNetInference": "763104351884.dkr.ecr.ap-south-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    ap-southeast-1:
+      "MXNetInference": "763104351884.dkr.ecr.ap-southeast-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    ap-southeast-2:
+      "MXNetInference": "763104351884.dkr.ecr.ap-southeast-2.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    me-south-1:
+      "MXNetInference": "217643126080.dkr.ecr.me-south-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    sa-east-1:
+      "MXNetInference": "763104351884.dkr.ecr.sa-east-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    ca-central-1:
+      "MXNetInference": "763104351884.dkr.ecr.ca-central-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    eu-central-1:
+      "MXNetInference": "763104351884.dkr.ecr.eu-central-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    eu-north-1:
+      "MXNetInference": "763104351884.dkr.ecr.eu-north-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    eu-west-1:
+      "MXNetInference": "763104351884.dkr.ecr.eu-west-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    eu-west-2:
+      "MXNetInference": "763104351884.dkr.ecr.eu-west-2.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+    eu-west-3:
+      "MXNetInference": "763104351884.dkr.ecr.eu-west-3.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+
 Resources:
   Endpoint:
     Type: "AWS::SageMaker::Endpoint"
@@ -39,7 +76,7 @@ Resources:
       ModelName: !Sub "${SolutionPrefix}-demo-model"
       PrimaryContainer:
         ModelDataUrl: !Sub "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/build/model.tar.gz"
-        Image: !Sub "763104351884.dkr.ecr.${AWS::Region}.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
+        Image: !FindInMap [RegionMap, !Ref "AWS::Region", MXNetInference]
         Mode: "SingleModel"
       ExecutionRoleArn: !Sub "${SageMakerIAMRoleArn}"
 
