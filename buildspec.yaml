@@ -4,7 +4,7 @@ phases:
   build:
     commands:
       - start_time=`date +%s`
-      - chmod +x ./build.sh && ./build.sh $SOLUTION_NAME $BUILD_OUTPUT_BUCKET $BUILD_OUTPUT_REGION
+      - chmod +x ./scripts/build.sh && ./scripts/build.sh $SOLUTION_NAME $BUILD_OUTPUT_BUCKET $BUILD_OUTPUT_REGION
       - echo "Build completed" $start_time
 artifacts:
   files:
@@ -13,7 +13,7 @@ artifacts:
     - metadata/**/*
     - src/**/*
     - docs/**/*
+    - scripts/**/*
     - README.md
     - .viperlightignore
     - .viperlightrc
-    - .gitignore
