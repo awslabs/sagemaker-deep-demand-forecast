@@ -9,7 +9,7 @@ jobs:
       max-parallel: 4
       fail-fast: false
       matrix:
-        python-version: [3.6]
+        python-version: [3.6, 3.7]
         platform: [ubuntu-latest]
     
     runs-on: ${{ matrix.platform }}
@@ -24,7 +24,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install cfn-lint
-        for y in `find deploy/* -name "*.yaml" -o -name "*.template" -o -name "*.json"`; do echo "============= $y ================" ; cfn-lint --fail-on-warnings $y || ec1=$?; done
+        for y in `find deploy/* -name "*.yaml" -o -name "*.template" -o -name "*.json"`; do
+        echo "============= $y ================"
+        cfn-lint --fail-on-warnings $y || ec1=$?
+        done
         if [ "$ec1" -ne "0" ]; then echo 'ERROR-1'; else echo 'SUCCESS-1'; ec1=0; fi
         echo "Exit Code 1 `echo $ec1`"
         if [ "$ec1" -ne "0" ]; then echo 'ERROR'; ec=1; else echo 'SUCCESS'; ec=0; fi;
@@ -40,5 +43,5 @@ jobs:
         mypy --ignore-missing-imports src
     - name: Test with pytest
       run: |
-        python -m pip install mxnet==1.6.0 gluonts pytest
+        python -m pip install mxnet==1.6.0 gluonts==0.5.1 pytest
         pytest --pyargs src -s
