@@ -121,9 +121,9 @@ Conditions:
 Mappings:
   S3:
     release:
-      BucketPrefix: "sagemaker-solutions"
+      BucketPrefix: "sagemaker-solutions-prod"
     dev:
-      BucketPrefix: "sagemaker-solutions-build"
+      BucketPrefix: "sagemaker-solutions-devo"
   CodeBuild:
     ProcessingContainer:
       S3Key: "build/sagemaker-deep-demand-forecast-preprocessing.zip"
