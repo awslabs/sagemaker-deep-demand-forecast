@@ -61,7 +61,7 @@ Resources:
       ProductionVariants:
         - InitialInstanceCount: 1
           InitialVariantWeight: 1.0
-          InstanceType: "ml.m4.xlarge"
+          InstanceType: "ml.m5.xlarge"
           ModelName: !GetAtt Model.ModelName
           VariantName: !GetAtt Model.ModelName
     Metadata:
