@@ -1,10 +1,15 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - pip install sagemaker
   build:
     commands:
       - echo Build started on `date`
-      - bash container/build_and_push.sh $ecr_repository $region $account_id
+      - bash container/codebuild/build_and_push.sh $ecr_repository $region $account_id
   post_build:
     commands:
       - echo Build completed on `date`
