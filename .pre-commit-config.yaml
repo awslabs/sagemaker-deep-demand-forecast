@@ -1,0 +1,30 @@
+default_language_version:
+  python: python3.6
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/psf/black
+    rev: 20.8b1
+    hooks:
+      - id: black
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.3.7
+    hooks:
+      - id: nbstripout
+        name: nbstripout
+        description: "nbstripout: strip output from Jupyter and IPython notebooks"
+        entry: nbstripout notebooks
+        language: python
+        types: [jupyter]
+  - repo: https://github.com/tomcatling/black-nb
+    rev: 0.3.0
+    hooks:
+      - id: black-nb
+        name: black-nb
+        entry: black-nb
+        language: python
+        args: ["--include", '\.ipynb$']
