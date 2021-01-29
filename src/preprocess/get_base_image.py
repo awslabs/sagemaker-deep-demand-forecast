@@ -3,7 +3,12 @@ import sagemaker
 
 def main(framework, region, version, instance_type):
     return sagemaker.image_uris.retrieve(
-        framework, region, version, instance_type=instance_type, py_version="py3", image_scope="training"
+        framework,
+        region,
+        version,
+        instance_type=instance_type,
+        py_version="py3",
+        image_scope="training",
     )
 
 

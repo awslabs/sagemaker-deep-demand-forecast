@@ -83,12 +83,8 @@ def delete_ecr_images(repository_name):
         images = ecr_client.describe_images(repositoryName=repository_name)
         image_details = images["imageDetails"]
         if len(image_details) > 0:
-            image_ids = [
-                {"imageDigest": i["imageDigest"]} for i in image_details
-            ]
-            ecr_client.batch_delete_image(
-                repositoryName=repository_name, imageIds=image_ids
-            )
+            image_ids = [{"imageDigest": i["imageDigest"]} for i in image_details]
+            ecr_client.batch_delete_image(repositoryName=repository_name, imageIds=image_ids)
             print(
                 "Successfully deleted {} images from repository "
                 "called '{}'. ".format(len(image_details), repository_name)
@@ -104,6 +100,7 @@ def delete_ecr_images(repository_name):
             "Could not find repository called '{}' not found. "
             "Skipping delete.".format(repository_name)
         )
+
 
 @helper.delete
 def on_delete(event, __):
