@@ -1,28 +1,25 @@
 #!/bin/bash
+set -euxo pipefail
+
+NOW=$(date +"%x %r %Z")
+echo "Time: $NOW"
 
 if [ $# -lt 3 ]; then
     echo "Please provide the solution name as well as the base S3 bucket name and the region to run build script."
-    echo "For example: ./build.sh trademarked-solution-name sagemaker-solutions-build us-west-2"
+    echo "For example: ./scripts/build.sh trademarked-solution-name sagemaker-solutions-build us-west-2"
     exit 1
 fi
 
 DATASET="electricity"
-BASE_DIR="$PWD"
+BASE_DIR="$(dirname $(dirname $(readlink -f $0)))"
+echo "Base dir: $BASE_DIR"
 
 rm -rf build
 mkdir build
 
-echo "Prepare notebooks for build"
-python -m pip install nbstripout==0.3.7 black-nb==0.3.0 # cleans outputs for build and format
-rm stack_outputs.json >/dev/null 2>&1 # if used in dev
-cd src
-nbstripout *.ipynb
-black-nb *.ipynb
-for nb in *.ipynb; do
-python ./scripts/set_kernelspec.py --notebook $nb --display-name "Python 3 (MXNet JumpStart)" --kernel "HUB_1P_IMAGE"
+for nb in src/*.ipynb; do
+    python $BASE_DIR/scripts/set_kernelspec.py --notebook $nb --display-name "Python 3 (MXNet JumpStart)" --kernel "HUB_1P_IMAGE"
 done
-
-cd -
 
 echo "Solution assistant lambda function"
 cd cloudformation/solution-assistant/
@@ -43,7 +40,7 @@ rm -rf build/src
 echo "Copying and packaging data preprocessing container build source"
 cp -r src/preprocess/ build/preprocess/
 cd build/preprocess
-zip -q -r9 $BASE_DIR/build/sagemaker-deep-demand-forecast-preprocessing.zip  -- *
+zip -q -r9 $BASE_DIR/build/sagemaker-deep-demand-forecast-preprocessing.zip -- *
 
 cd -
 rm -rf build/preprocess

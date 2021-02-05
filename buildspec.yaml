@@ -3,14 +3,12 @@ version: 0.2
 phases:
   build:
     commands:
-      - start_time=`date +%s`
+      - start=$SECONDS
       - chmod +x ./scripts/build.sh && ./scripts/build.sh $SOLUTION_NAME $BUILD_OUTPUT_BUCKET $BUILD_OUTPUT_REGION
-      - echo "Build completed" $start_time
+      - echo "Build took $(($SECONDS - start)) seconds to complete"
 artifacts:
   files:
     - cloudformation/**/*
-    - iam/**/*
-    - metadata/**/*
     - src/**/*
     - docs/**/*
     - scripts/**/*
