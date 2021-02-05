@@ -165,7 +165,7 @@ The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazona
 Finally, we deploy an endpoint for the trained model and can interactively compare its performance by comparing the train, test data and predictions.
 
 <p align="center">
-  <img src="docs/result.png" alt="interative" width="400" height="300"/>
+  <img src="docs/result.png" alt="interative" width="500" height="400"/>
 </p>
 
 ## Architecture Overview
