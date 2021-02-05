@@ -12,7 +12,45 @@
 
 This project provides an end-to-end solution for **Demand Forecasting** task using a new state-of-the-art *Deep Learning* model [LSTNet](https://arxiv.org/abs/1703.07015) available in [GluonTS](https://github.com/awslabs/gluon-ts) and [Amazon SageMaker](https://aws.amazon.com/sagemaker/).
 
-## Demand Forecasting
+## Overview
+
+### How Does the Input Data Look Like?
+
+The input data is a **multi-variate time-series**.
+
+An example includes hourly [electricity consumption]((https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014)) of 321 users over the period of 29 months. Here is a snapshot of the normalized data
+
+<p align="center">
+  <img src="docs/sample.png" alt="sample" width="500" height="200"/>
+</p>
+
+### How to Prepare Your Data to Feed into the Model?
+
+We have provided example of how to feed your time-series data with GluonTS in the notebook. To convert CSV data or other formats to GluonTS format, please see the [customization](#customization).
+
+### What Are the Outputs?
+
+1. A trained LSTNet model and
+2. A SageMaker endpoint that can predict the future (multi-variate) values given a prediction interval
+
+For example, we can estimate the hourly electricity consumption of 321 users for the coming week.
+### What Algorithm is Used?
+
+We have implemented [LSTNet](https://arxiv.org/abs/1703.07015) which is a state-of-the-art Deep Learning model and is available in [GluonTS](https://github.com/awslabs/gluon-ts).
+
+### What is the Estimated Cost?
+
+Running the solution end-to-end costs less than $5 USD. Please make sure you have read the cleaning up part [here](#cleaning-up).
+
+### How does the Data Flow look like?
+
+<p align="center">
+  <img src="docs/data_flow.png" alt="data_flow" width="600" height="300"/>
+</p>
+
+
+
+## Solution Details
 
 Demand forecasting uses historical time-series data to help streamline the supply-demand decision-making process across businesses. Examples include predicting the number of
 
@@ -122,34 +160,40 @@ Alternatively, you can clone this repository then navigate to [AWS CloudFormatio
 
 ## What Does `deep-demand-forecast.ipynb` Offer?
 
-The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazonaws.com/master/api/gluonts/gluonts.model.lstnet.html) estimator [*on electricity consumption data*](https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014) which is multivariate timeseries dataset capturing the electricity consumption (in kW) with **15min** frequency from **2011-01-01** to **2014-05-26**. We compare the model performance by visualizing the metrics [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error) vs. [sMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)
-
-<p align="center">
-  <img src="docs/MASE_vs_sMAPE.gif" alt="MASE vs. sMAPE" width="350" height="300"/>
-  <img src="docs/MASE_sMAPE_barplots.png" alt="MASE sMAPE barplots" width="600" height="300"/>
-</p>
+The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazonaws.com/master/api/gluonts/gluonts.model.lstnet.html) estimator [*on electricity consumption data*](https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014) which is multivariate time-series dataset capturing the electricity consumption (in kW) with **15min** frequency from **2011-01-01** to **2014-05-26**. We compare the model performance by visualizing the metrics [MASE](https://en.wikipedia.org/wiki/Mean_absolute_scaled_error) vs. [sMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error).
 
 Finally, we deploy an endpoint for the trained model and can interactively compare its performance by comparing the train, test data and predictions.
 
 <p align="center">
-  <img src="docs/interactive_plots.gif" alt=interative" width="700" height="600"/>
+  <img src="docs/result.png" alt="interative" width="400" height="300"/>
 </p>
 
 ## Architecture Overview
 
-The project contains
-
-* [**Preprocessing**](src/preprocess) step, designed as a *microservice* that allows users to build and register their own Docker image for this task via [Amazon ECR](https://aws.amazon.com/ecr/) and execute the job in [Amazon SageMaker](https://aws.amazon.com/sagemaker/)
-* Interactive **training**, **evaluating** and **visualizing** the results in the provided [SageMaker notebook](source/deep_demand_forecast.ipynb)
-* **Deplying** and **testing** an [HTTPS endpoint](https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-hosting.html)
-* Monitoring the deployed model via [Amazon CloudWatch](https://aws.amazon.com/cloudwatch/)
-
-Here is the visual architecture
+Here is architecture for the end-to-end training and deployment process
 
 <p align="center">
-  <img src="docs/arch.png" alt="Solution Architecture" width="600" height="500">
+  <img src="docs/train_arch.png" alt="Solution Architecture" width="800" height="400">
 </p>
 
+1. The input data located in an [Amazon S3](https://aws.amazon.com/s3/) bucket
+2. The provided [SageMaker notebook](source/deep_demand_forecast.ipynb) that gets the input data and launches the later stages below
+3. [**Preprocessing**](src/preprocess) step to normalize the input data. We use [SageMaker processing](https://sagemaker.readthedocs.io/en/stable/amazon_sagemaker_processing.html) job that is designed as a *microservice*. This allows users to build and register their own Docker image via [Amazon ECR](https://aws.amazon.com/ecr/) and execute the job using [Amazon SageMaker](https://aws.amazon.com/sagemaker/)
+4. **Training an LSTNet model** using the previous preprocessed step and evaluating its results using Amazon SageMaker. If desired, one can deploy the trained model and create a SageMaker endpoint
+5. **SageMaker endpoint** created from the previous step, is an [HTTPS endpoint](https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-hosting.html) and is capable of producing predictions
+6.  Monitoring the training and deployed model via [Amazon CloudWatch](https://aws.amazon.com/cloudwatch/)
+
+
+Here is the architecture of the inference
+
+<p align="center">
+  <img src="docs/inference_arch.png" alt="Solution Architecture" width="800" height="300">
+</p>
+
+1. The input data, located in an [Amazon S3](https://aws.amazon.com/s3/) bucket
+2. From SageMaker notebook, normalize the new input data using the statistics of the training data
+3. Sending the requests to the SageMaker endpoint
+4. Predictions
 ## Cleaning Up
 
 When you've finished with this solution, make sure that you delete all unwanted AWS resources. AWS CloudFormation can be used to automatically delete all standard resources that have been created by the solution and notebook. Go to the AWS CloudFormation Console, and delete the parent stack. Choosing to delete the parent stack will automatically delete the nested stacks.
