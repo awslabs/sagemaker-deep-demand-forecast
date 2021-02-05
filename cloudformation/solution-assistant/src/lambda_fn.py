@@ -121,9 +121,10 @@ def on_delete(event, __):
     # delete buckets
     delete_s3_bucket(output_bucket)
 
+    # TODO:
     # delete images from ecr
-    ecr_repository = event["ResourceProperties"]["ECRRepository"]
-    delete_ecr_images(ecr_repository)
+    # ecr_repository = event["ResourceProperties"]["ECRRepository"]
+    # delete_ecr_images(ecr_repository)
 
 
 def handler(event, context):
