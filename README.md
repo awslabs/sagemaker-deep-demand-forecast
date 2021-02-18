@@ -18,7 +18,7 @@ This project provides an end-to-end solution for **Demand Forecasting** task usi
 
 The input data is a **multi-variate time-series**.
 
-An example includes hourly [electricity consumption]((https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014)) of 321 users over the period of 29 months. Here is a snapshot of the normalized data
+An example includes hourly [electricity consumption]((https://archive.ics.uci.edu/ml/datasets/ElectricityLoadDiagrams20112014)) of 321 users over the period of 41 months. Here is a snapshot of the normalized data
 
 <p align="center">
   <img src="docs/sample.png" alt="sample" width="500" height="200"/>
@@ -47,8 +47,6 @@ Running the solution end-to-end costs less than $5 USD. Please make sure you hav
 <p align="center">
   <img src="docs/data_flow.png" alt="data_flow" width="600" height="300"/>
 </p>
-
-
 
 ## Solution Details
 
@@ -165,8 +163,10 @@ The notebook trains an [LSTNet](https://gluon-ts.s3-accelerate.dualstack.amazona
 Finally, we deploy an endpoint for the trained model and can interactively compare its performance by comparing the train, test data and predictions.
 
 <p align="center">
-  <img src="docs/result.png" alt="interative" width="500" height="400"/>
+  <img src="docs/interactive_plots.gif" alt="interactive" width="700" height="500"/>
 </p>
+
+For example, here, re-training with more epochs would be helpful to increase the model performance and we can re-deploy.
 
 ## Architecture Overview
 
