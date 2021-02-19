@@ -2,6 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/actions"><img alt="Actions Status" src="https://github.com/awslabs/sagemaker-deep-demand-forecast/workflows/Tests/badge.svg"></a>
+  <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/actions"><img alt="CodeQL Status" src="https://github.com/awslabs/sagemaker-deep-demand-forecast/workflows/CodeQL/badge.svg"></a>
   <a href="https://github.com/awslabs/sagemaker-deep-demand-forecast/blob/mainline/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/awslabs/sagemaker-deep-demand-forecast.svg"></a>
   <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
   <br>
