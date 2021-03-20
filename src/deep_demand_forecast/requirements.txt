@@ -13,7 +13,7 @@ entrypoints==0.3          # via altair
 gluonts==0.5.1            # via -r requirements.in
 holidays==0.9.12          # via gluonts
 importlib-metadata==2.0.0  # via jsonschema
-jinja2==2.11.2            # via altair
+jinja2==2.11.3            # via altair
 jsonschema==3.2.0         # via altair
 kiwisolver==1.2.0         # via matplotlib
 markupsafe==1.1.1         # via jinja2
