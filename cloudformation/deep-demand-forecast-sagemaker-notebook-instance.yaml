@@ -5,7 +5,7 @@ Parameters:
     Type: String
   SolutionName:
     Type: String
-  SolutionS3Bucket:
+  S3Bucket:
     Type: String
   SageMakerIAMRoleArn:
     Type: String
@@ -13,8 +13,7 @@ Parameters:
     Type: String
   SageMakerProcessingJobContainerBuild:
     Type: String
-  SageMakerProcessingJobContainerName:
-    Description: Name of the SageMaker processing job ECR Container
+  ECRRepository:
     Type: String
   StackVersion:
     Type: String
@@ -23,7 +22,7 @@ Mappings:
   S3:
     release:
       BucketPrefix: "sagemaker-solutions-prod"
-    dev:
+    development:
       BucketPrefix: "sagemaker-solutions-devo"
 
 Resources:
@@ -33,7 +32,7 @@ Resources:
       DirectInternetAccess: Enabled
       InstanceType: !Ref SageMakerNotebookInstanceType
       LifecycleConfigName: !GetAtt LifeCycleConfig.NotebookInstanceLifecycleConfigName
-      NotebookInstanceName: !Sub "${SolutionName}"
+      NotebookInstanceName: !Sub "${SolutionPrefix}"
       RoleArn: !Sub "${SageMakerIAMRoleArn}"
       VolumeSizeInGB: 100
     Metadata:
@@ -44,7 +43,7 @@ Resources:
   LifeCycleConfig:
     Type: AWS::SageMaker::NotebookInstanceLifecycleConfig
     Properties:
-      NotebookInstanceLifecycleConfigName: !Sub "${SolutionName}-nb-lifecycle-config"
+      NotebookInstanceLifecycleConfigName: !Sub "${SolutionPrefix}-nb-lifecycle-config"
       OnStart:
         - Content:
             Fn::Base64: |
@@ -74,8 +73,9 @@ Resources:
                 echo '  "IamRole": "${SageMakerIAMRoleArn}",' >> stack_outputs.json
                 echo '  "SolutionPrefix": "${SolutionPrefix}",' >> stack_outputs.json
                 echo '  "SolutionName": "${SolutionName}",' >> stack_outputs.json
-                echo '  "SolutionS3Bucket": "${SolutionS3Bucket}",' >> stack_outputs.json
-                echo '  "SageMakerProcessingJobContainerName": "${SageMakerProcessingJobContainerName}",' >> stack_outputs.json
+                echo '  "SolutionS3Bucket": "${SolutionsRefBucketBase}",' >> stack_outputs.json
+                echo '  "S3Bucket": "${S3Bucket}",' >> stack_outputs.json
+                echo '  "SageMakerProcessingJobContainerName": "${ECRRepository}",' >> stack_outputs.json
                 echo '  "SageMakerProcessingJobContainerBuild": "${SageMakerProcessingJobContainerBuild}"' >> stack_outputs.json
                 echo '}' >> stack_outputs.json
                 cat stack_outputs.json

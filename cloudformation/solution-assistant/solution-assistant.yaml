@@ -10,11 +10,13 @@ Parameters:
     Type: String
   StackName:
     Type: String
-  S3BucketName:
+  S3Bucket:
     Type: String
-  SolutionsS3BucketName:
+  SolutionS3Bucket:
     Type: String
   RoleArn:
+    Type: String
+  ECRRepository:
     Type: String
 
 Mappings:
@@ -28,8 +30,9 @@ Resources:
     Properties:
       SolutionPrefix: !Ref SolutionPrefix
       ServiceToken: !GetAtt SolutionAssistantLambda.Arn
-      S3BucketName: !Ref S3BucketName
+      S3Bucket: !Ref S3Bucket
       StackName: !Ref StackName
+      ECRRepository: !Ref ECRRepository
 
   SolutionAssistantLambda:
     Type: AWS::Lambda::Function
@@ -39,7 +42,7 @@ Resources:
       Role: !Ref RoleArn
       Runtime: "python3.8"
       Code:
-        S3Bucket: !Ref SolutionsS3BucketName
+        S3Bucket: !Ref SolutionS3Bucket
         S3Key: !Sub
           - "${SolutionName}/${LambdaS3Key}"
           - LambdaS3Key: !FindInMap [Function, SolutionAssistant, S3Key]

@@ -83,8 +83,12 @@ def delete_ecr_images(repository_name):
         images = ecr_client.describe_images(repositoryName=repository_name)
         image_details = images["imageDetails"]
         if len(image_details) > 0:
-            image_ids = [{"imageDigest": i["imageDigest"]} for i in image_details]
-            ecr_client.batch_delete_image(repositoryName=repository_name, imageIds=image_ids)
+            image_ids = [
+                {"imageDigest": i["imageDigest"]} for i in image_details
+            ]
+            ecr_client.batch_delete_image(
+                repositoryName=repository_name, imageIds=image_ids
+            )
             print(
                 "Successfully deleted {} images from repository "
                 "called '{}'. ".format(len(image_details), repository_name)
@@ -101,7 +105,6 @@ def delete_ecr_images(repository_name):
             "Skipping delete.".format(repository_name)
         )
 
-
 @helper.delete
 def on_delete(event, __):
     # remove sagemaker endpoints
@@ -115,16 +118,15 @@ def on_delete(event, __):
         delete_sagemaker_endpoint(endpoint_name)
 
     # remove files in s3
-    output_bucket = event["ResourceProperties"]["S3BucketName"]
+    output_bucket = event["ResourceProperties"]["S3Bucket"]
     delete_s3_objects(output_bucket)
 
     # delete buckets
     delete_s3_bucket(output_bucket)
 
-    # TODO:
-    # delete images from ecr
-    # ecr_repository = event["ResourceProperties"]["ECRRepository"]
-    # delete_ecr_images(ecr_repository)
+    # delete images from ecr repository
+    ecr_repository = event["ResourceProperties"]["ECRRepository"]
+    delete_ecr_images(ecr_repository)
 
 
 def handler(event, context):

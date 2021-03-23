@@ -34,8 +34,6 @@ Mappings:
       "MXNetInference": "763104351884.dkr.ecr.eu-north-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
     eu-south-1:
       "MXNetInference": "763104351884.dkr.ecr.eu-south-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
-    ap-east-1:
-      "MXNetInference": "763104351884.dkr.ecr.ap-east-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
     ap-northeast-1:
       "MXNetInference": "763104351884.dkr.ecr.ap-northeast-1.amazonaws.com/mxnet-inference:1.6.0-cpu-py3"
     ap-northeast-2:
@@ -79,7 +77,7 @@ Resources:
     Properties:
       ModelName: !Sub "${SolutionPrefix}-demo-model"
       PrimaryContainer:
-        ModelDataUrl: !Sub "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/build/model.tar.gz"
+        ModelDataUrl: !Sub "https://${SolutionRefBucketBase}-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/${SolutionName}/build/model.tar.gz"
         Image: !FindInMap [RegionMap, !Ref "AWS::Region", MXNetInference]
         Mode: "SingleModel"
       ExecutionRoleArn: !Sub "${SageMakerIAMRoleArn}"

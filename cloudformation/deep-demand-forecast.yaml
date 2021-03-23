@@ -23,8 +23,8 @@ Parameters:
       or begin with  'sagemaker-deep-demand-forecast-' followed by a set of letters and hyphens.
       Used to specify a particular directory on S3, that can correspond to a development branch.
     Type: String
-    Default: "sagemaker-deep-demand-forecast"
-    AllowedPattern: '^sagemaker-deep-demand-forecast-?[a-z\-]*$'
+    Default: "sagemaker-deep-demand-forecast/1.2.0"
+    AllowedPattern: '^sagemaker-deep-demand-forecast(/[0-9]+\.[0-9]+\.[0-9]+-?[a-zA-Z-0-9\.+]*)?$'
 
   IamRole:
     Type: String
@@ -60,11 +60,6 @@ Parameters:
       - "false"
     Default: "false"
 
-  SageMakerProcessingJobContainerName:
-    Description: Name of the SageMaker processing job ECR Container
-    Type: String
-    Default: "sagemaker-soln-deep-demand-forecast-preprocessing"
-
   StackVersion:
     Description: |
       CloudFormation Stack version.
@@ -74,7 +69,7 @@ Parameters:
     Default: release
     AllowedValues:
       - release
-      - dev
+      - development
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -91,7 +86,6 @@ Metadata:
           - SageMakerNotebookInstanceType
           - CreateSageMakerNotebookInstance
           - BuildSageMakerContainersRemotely
-          - SageMakerProcessingJobContainerName
 
     ParameterLabels:
       SolutionPrefix:
@@ -106,8 +100,6 @@ Metadata:
         default: "SageMaker Notebook Instance Type"
       BuildSageMakerContainersRemotely:
         default: "Build SageMaker containers on AWS CodeBuild"
-      SageMakerProcessingJobContainerName:
-        default: SageMaker Processing Container Name
       StackVersion:
         default: "Solution Stack Version"
 
@@ -122,7 +114,7 @@ Mappings:
   S3:
     release:
       BucketPrefix: "sagemaker-solutions-prod"
-    dev:
+    development:
       BucketPrefix: "sagemaker-solutions-devo"
   CodeBuild:
     ProcessingContainer:
@@ -144,7 +136,6 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
-
     Metadata:
       cfn_nag:
         rules_to_suppress:
@@ -153,18 +144,32 @@ Resources:
           - id: W51
             reason: Default access policy is sufficient.
 
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: "true"
+      RepositoryName: !Sub ${SolutionPrefix}
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W28
+            reason: Custom name is more descriptive
+          - id: W79
+            reason: ScanOnPush is enabled
+
   SageMakerPermissionsStack:
     Type: "AWS::CloudFormation::Stack"
     Condition: CreateCustomSolutionRole
     Properties:
       TemplateURL: !Sub
-        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-permissions.yaml"
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-permissions.yaml"
         - SolutionRefBucketBase:
             !FindInMap [S3, !Ref StackVersion, BucketPrefix]
       Parameters:
         SolutionPrefix: !Ref SolutionPrefix
         SolutionName: !Ref SolutionName
-        S3BucketName: !Ref S3Bucket
+        S3Bucket: !Ref S3Bucket
         SolutionCodeBuildProject: !Sub "${SolutionPrefix}-processing-job-container-build"
         StackVersion: !Ref StackVersion
 
@@ -173,13 +178,13 @@ Resources:
     Condition: CreateClassicSageMakerResources
     Properties:
       TemplateURL: !Sub
-        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-sagemaker-notebook-instance.yaml"
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-sagemaker-notebook-instance.yaml"
         - SolutionRefBucketBase:
             !FindInMap [S3, !Ref StackVersion, BucketPrefix]
       Parameters:
         SolutionPrefix: !Ref SolutionPrefix
         SolutionName: !Ref SolutionName
-        SolutionS3Bucket: !Ref S3Bucket
+        S3Bucket: !Ref S3Bucket
         SageMakerIAMRoleArn:
           !If [
             CreateCustomSolutionRole,
@@ -193,7 +198,7 @@ Resources:
             !Ref ProcessingJobContainerBuild,
             "local",
           ]
-        SageMakerProcessingJobContainerName: !Ref SageMakerProcessingJobContainerName
+        ECRRepository: !Ref ECRRepository
         StackVersion: !Ref StackVersion
 
   ProcessingJobContainerBuild:
@@ -222,7 +227,7 @@ Resources:
         PrivilegedMode: True
         EnvironmentVariables:
           - Name: ecr_repository
-            Value: !Ref SageMakerProcessingJobContainerName
+            Value: !Ref ECRRepository
           - Name: region
             Value: !Ref AWS::Region
           - Name: account_id
@@ -239,7 +244,7 @@ Resources:
     Type: "AWS::CloudFormation::Stack"
     Properties:
       TemplateURL: !Sub
-        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-endpoint.yaml"
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/${SolutionName}/cloudformation/deep-demand-forecast-endpoint.yaml"
         - SolutionRefBucketBase:
             !FindInMap [S3, !Ref StackVersion, BucketPrefix]
       Parameters:
@@ -257,15 +262,15 @@ Resources:
     Type: "AWS::CloudFormation::Stack"
     Properties:
       TemplateURL: !Sub
-        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.amazonaws.com/${SolutionName}/cloudformation/solution-assistant/solution-assistant.yaml"
+        - "https://${SolutionRefBucketBase}-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/${SolutionName}/cloudformation/solution-assistant/solution-assistant.yaml"
         - SolutionRefBucketBase:
             !FindInMap [S3, !Ref StackVersion, BucketPrefix]
       Parameters:
         SolutionPrefix: !Ref SolutionPrefix
         SolutionName: !Ref SolutionName
         StackName: !Ref AWS::StackName
-        S3BucketName: !Ref S3Bucket
-        SolutionsS3BucketName: !Sub
+        S3Bucket: !Ref S3Bucket
+        SolutionS3Bucket: !Sub
           - "${SolutionRefBucketBase}-${AWS::Region}"
           - SolutionRefBucketBase:
               !FindInMap [S3, !Ref StackVersion, BucketPrefix]
@@ -275,6 +280,7 @@ Resources:
             !GetAtt SageMakerPermissionsStack.Outputs.SageMakerRoleArn,
             !Ref IamRole,
           ]
+        ECRRepository: !Ref ECRRepository
 
 Outputs:
   SolutionName:
@@ -315,9 +321,13 @@ Outputs:
     Description: "Solution Prefix for naming SageMaker transient resources"
     Value: !Ref SolutionPrefix
 
-  SolutionS3Bucket:
-    Description: "Solution S3 bucket name"
+  S3Bucket:
+    Description: "S3 bucket name used in the solution to store artifacts"
     Value: !Ref S3Bucket
+
+  SolutionS3Bucket:
+    Description: "Solution S3 bucket"
+    Value: !FindInMap [S3, !Ref StackVersion, BucketPrefix]
 
   SageMakerProcessingJobContainerBuild:
     Description: "Code build project for remotely building the sagemaker preprocessing container"
@@ -325,8 +335,8 @@ Outputs:
       !If [CreateCodeBuildProject, !Ref ProcessingJobContainerBuild, "local"]
 
   SageMakerProcessingJobContainerName:
-    Description: "ECR Container name for SageMaker processing job"
-    Value: !Ref SageMakerProcessingJobContainerName
+    Description: "ECR repository name for SageMaker processing job"
+    Value: !Ref ECRRepository
 
   DemoEndpointName:
     Description: "Name of the demo endpoint"

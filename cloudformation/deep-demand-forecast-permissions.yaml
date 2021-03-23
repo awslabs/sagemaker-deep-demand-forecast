@@ -5,7 +5,7 @@ Parameters:
     Type: String
   SolutionName:
     Type: String
-  S3BucketName:
+  S3Bucket:
     Type: String
   SolutionCodeBuildProject:
     Type: String
@@ -16,7 +16,7 @@ Mappings:
   S3:
     release:
       BucketPrefix: "sagemaker-solutions-prod"
-    dev:
+    development:
       BucketPrefix: "sagemaker-solutions-devo"
 
 Resources:
@@ -129,15 +129,15 @@ Resources:
             Action:
               - s3:ListBucket
             Resource: !Sub
-              - "arn:aws:s3:::${SolutionS3BucketName}-${AWS::Region}"
-              - SolutionS3BucketName:
+              - "arn:aws:s3:::${SolutionS3Bucket}-${AWS::Region}"
+              - SolutionS3Bucket:
                   !FindInMap [S3, !Ref StackVersion, BucketPrefix]
           - Effect: Allow
             Action:
               - s3:GetObject
             Resource: !Sub
-              - "arn:aws:s3:::${SolutionS3BucketName}-${AWS::Region}/${SolutionName}/*"
-              - SolutionS3BucketName:
+              - "arn:aws:s3:::${SolutionS3Bucket}-${AWS::Region}/${SolutionName}/*"
+              - SolutionS3Bucket:
                   !FindInMap [S3, !Ref StackVersion, BucketPrefix]
                 SolutionName: !Ref SolutionName
           - Effect: Allow
@@ -147,7 +147,7 @@ Resources:
               - s3:GetBucketLocation
               - s3:ListBucketMultipartUploads
             Resource:
-              - !Sub "arn:aws:s3:::${S3BucketName}"
+              - !Sub "arn:aws:s3:::${S3Bucket}"
           - Effect: Allow
             Action:
               - s3:AbortMultipartUpload
@@ -156,8 +156,8 @@ Resources:
               - s3:PutObject
               - s3:DeleteObject
             Resource:
-              - !Sub "arn:aws:s3:::${S3BucketName}"
-              - !Sub "arn:aws:s3:::${S3BucketName}/*"
+              - !Sub "arn:aws:s3:::${S3Bucket}"
+              - !Sub "arn:aws:s3:::${S3Bucket}/*"
           - Effect: Allow
             Action:
               - s3:CreateBucket
