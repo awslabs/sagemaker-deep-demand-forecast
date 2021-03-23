@@ -86,7 +86,7 @@ The easiest is to click on the following button to create the *AWS CloudFormatio
     <td>Oregon</td>
     <td>us-west-2</td>
     <td align="center">
-      <a href="https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://sagemaker-solutions-prod-us-west-2.s3.amazonaws.com/sagemaker-deep-demand-forecast/cloudformation/deep-demand-forecast.yaml&stackName=sagemaker-soln-ddf-demand&param_SolutionPrefix=sagemaker-soln-ddf-demand">
+      <a href="https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?templateURL=https://sagemaker-solutions-prod-us-west-2.s3.us-west-2.amazonaws.com/sagemaker-deep-demand-forecast/1.2.1-github/cloudformation/deep-demand-forecast.yaml&stackName=sagemaker-soln-ddf-demand&param_SolutionPrefix=sagemaker-soln-ddf-demand&param_SolutionName=sagemaker-deep-demand-forecast/1.2.1-github">
         <img src="docs/launch.svg" height="35">
       </a>
     </td>
@@ -96,7 +96,7 @@ The easiest is to click on the following button to create the *AWS CloudFormatio
     <td>N. Virginia</td>
     <td>us-east-1</td>
     <td align="center">
-      <a href="https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?templateURL=https://sagemaker-solutions-prod-us-east-1.s3.amazonaws.com/sagemaker-deep-demand-forecast/cloudformation/deep-demand-forecast.yaml&stackName=sagemaker-soln-ddf-demand&param_SolutionPrefix=sagemaker-soln-ddf-demand">
+      <a href="https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?templateURL=https://sagemaker-solutions-prod-us-east-1.s3.us-east-1.amazonaws.com/sagemaker-deep-demand-forecast/1.2.1-github/cloudformation/deep-demand-forecast.yaml&stackName=sagemaker-soln-ddf-demand&param_SolutionPrefix=sagemaker-soln-ddf-demand&param_SolutionName=sagemaker-deep-demand-forecast/1.2.1-github">
         <img src="docs/launch.svg" height="35">
       </a>
     </td>
@@ -106,7 +106,7 @@ The easiest is to click on the following button to create the *AWS CloudFormatio
     <td>Ohio</td>
     <td>us-east-2</td>
     <td align="center">
-      <a href="https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/review?templateURL=https://sagemaker-solutions-prod-us-east-2.s3.amazonaws.com/sagemaker-deep-demand-forecast/cloudformation/deep-demand-forecast.yaml&stackName=sagemaker-soln-ddf-demand&param_SolutionPrefix=sagemaker-soln-ddf-demand">
+      <a href="https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/review?templateURL=https://sagemaker-solutions-prod-us-east-2.s3.us-east-2.amazonaws.com/sagemaker-deep-demand-forecast/1.2.1-github/cloudformation/deep-demand-forecast.yaml&stackName=sagemaker-soln-ddf-demand&param_SolutionPrefix=sagemaker-soln-ddf-demand&param_SolutionName=sagemaker-deep-demand-forecast/1.2.1-github">
         <img src="docs/launch.svg" height="35">
       </a>
     </td>
