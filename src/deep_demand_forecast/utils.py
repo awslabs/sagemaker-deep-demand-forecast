@@ -31,7 +31,7 @@ def evaluate(
 
 
 def str2bool(flag):
-    """ bool: convert flag to boolean if it is string and return it else return its initial bool value """
+    """bool: convert flag to boolean if it is string and return it else return its initial bool value"""
     if not isinstance(flag, bool):
         if flag.lower() == "false":
             flag = False
