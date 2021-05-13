@@ -4,26 +4,60 @@
 #
 #    pip-compile
 #
-certifi==2020.6.20        # via matplotlib, requests
-chardet==3.0.4            # via requests
-cycler==0.10.0            # via matplotlib
-dataclasses==0.7          # via pydantic
-gluonts==0.5.1            # via -r requirements.in
-graphviz==0.8.4           # via mxnet
-holidays==0.9.12          # via gluonts
-idna==2.10                # via requests
-kiwisolver==1.2.0         # via matplotlib
-matplotlib==3.3.2         # via gluonts
-mxnet==1.6                # via -r requirements.in
-numpy==1.19.2             # via gluonts, matplotlib, mxnet, pandas
-pandas==1.0.5             # via -r requirements.in, gluonts
-Pillow>=8.1.1             # via matplotlib
-pydantic==1.7             # via gluonts
-pyparsing==2.4.7          # via matplotlib
-python-dateutil==2.8.1    # via holidays, matplotlib, pandas
-pytz==2020.1              # via pandas
-requests==2.24.0          # via mxnet
-six==1.15.0               # via holidays, python-dateutil
-tqdm==4.51.0              # via gluonts
-ujson==1.35               # via gluonts
-urllib3==1.25.11          # via requests
+certifi==2020.6.20
+    # via
+    #   matplotlib
+    #   requests
+chardet==3.0.4
+    # via requests
+cycler==0.10.0
+    # via matplotlib
+gluonts==0.5.1
+    # via -r requirements.in
+graphviz==0.8.4
+    # via mxnet
+holidays==0.9.12
+    # via gluonts
+idna==2.10
+    # via requests
+kiwisolver==1.2.0
+    # via matplotlib
+matplotlib==3.3.2
+    # via gluonts
+mxnet==1.6
+    # via -r requirements.in
+numpy==1.19.2
+    # via
+    #   gluonts
+    #   matplotlib
+    #   mxnet
+    #   pandas
+pandas==1.0.5
+    # via
+    #   -r requirements.in
+    #   gluonts
+pillow==8.2.0
+    # via matplotlib
+pydantic==1.7.4
+    # via gluonts
+pyparsing==2.4.7
+    # via matplotlib
+python-dateutil==2.8.1
+    # via
+    #   holidays
+    #   matplotlib
+    #   pandas
+pytz==2020.1
+    # via pandas
+requests==2.24.0
+    # via mxnet
+six==1.15.0
+    # via
+    #   holidays
+    #   python-dateutil
+tqdm==4.51.0
+    # via gluonts
+ujson==1.35
+    # via gluonts
+urllib3==1.25.11
+    # via requests
