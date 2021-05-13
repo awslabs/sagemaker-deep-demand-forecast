@@ -35,7 +35,7 @@ jobs:
         exit $ec
     - name: Style check
       run: |
-        python -m pip install black
+        python -m pip install black==21.5b1
         black --check src
     - name: Type check
       run: |
