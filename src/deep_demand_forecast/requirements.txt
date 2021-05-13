@@ -21,7 +21,7 @@ matplotlib==3.3.2         # via gluonts
 numpy==1.19.2             # via altair, gluonts, matplotlib, pandas
 pandas==1.0.5             # via -r requirements.in, altair, gluonts
 Pillow>=8.1.1             # via matplotlib
-pydantic==1.7             # via gluonts
+pydantic==1.7.4           # via gluonts
 pyparsing==2.4.7          # via matplotlib
 pyrsistent==0.17.3        # via jsonschema
 python-dateutil==2.8.1    # via holidays, matplotlib, pandas
