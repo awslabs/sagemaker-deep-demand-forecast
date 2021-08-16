@@ -107,7 +107,7 @@ The solution artifacts are included in this GitHub repository for reference.
   * `deep_demand_forecast/`: Contains the train and inference code
     * `train.py`: SageMaker train code
     * `inference.py`: SageMaker inference code
-    * `data.py`: [`GluonTS`](https://gluon-ts.mxnet.io/api/gluonts/gluonts.dataset.html) data preparation
+    * `data.py`: [`GluonTS`](https://ts.gluon.ai/api/gluonts/gluonts.dataset.html) data preparation
     * `metrics.py`: A training metric
     * `monitor.py`: Preparing results for visualization
     * `utils.py`: Helper functions
@@ -137,7 +137,7 @@ Here is architecture for the end-to-end training and deployment process
 </p>
 
 1. The input data located in an [Amazon S3](https://aws.amazon.com/s3/) bucket
-2. The provided [SageMaker notebook](source/deep_demand_forecast.ipynb) that gets the input data and launches the later stages below
+2. The provided [SageMaker notebook](/src/deep-demand-forecast.ipynb ) that gets the input data and launches the later stages below
 3. [**Preprocessing**](src/preprocess) step to normalize the input data. We use [SageMaker processing](https://sagemaker.readthedocs.io/en/stable/amazon_sagemaker_processing.html) job that is designed as a *microservice*. This allows users to build and register their own Docker image via [Amazon ECR](https://aws.amazon.com/ecr/) and execute the job using [Amazon SageMaker](https://aws.amazon.com/sagemaker/)
 4. **Training an LSTNet model** using the previous preprocessed step and evaluating its results using Amazon SageMaker. If desired, one can deploy the trained model and create a SageMaker endpoint
 5. **SageMaker endpoint** created from the previous step, is an [HTTPS endpoint](https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-hosting.html) and is capable of producing predictions
@@ -164,8 +164,8 @@ When you've finished with this solution, make sure that you delete all unwanted 
 
 To use your own data, please take a look at
 
-* [Extensive GluonTS tutorials](https://gluon-ts.mxnet.io/examples/index.html)
-* Consult with the [dataset API](https://gluon-ts.mxnet.io/api/gluonts/gluonts.dataset.html)
+* [Extensive GluonTS tutorials](https://ts.gluon.ai/tutorials/index.html)
+* Consult with the [dataset API](https://ts.gluon.ai/api/gluonts/gluonts.dataset.html)
 
 ## Useful Resources
 
