@@ -25,5 +25,5 @@ pytz==2020.1              # via pandas
 requests==2.24.0          # via mxnet
 six==1.15.0               # via holidays, python-dateutil
 tqdm==4.51.0              # via gluonts
-ujson==1.35               # via gluonts
+ujson               # via gluonts
 urllib3>=1.26.5           # via requests
