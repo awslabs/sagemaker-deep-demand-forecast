@@ -18,7 +18,7 @@ jsonschema==3.2.0         # via altair
 kiwisolver==1.2.0         # via matplotlib
 markupsafe==1.1.1         # via jinja2
 matplotlib==3.3.2         # via gluonts
-numpy==1.19.2             # via altair, gluonts, matplotlib, pandas
+numpy            # via altair, gluonts, matplotlib, pandas
 pandas==1.0.5             # via -r requirements.in, altair, gluonts
 Pillow>=8.1.1             # via matplotlib
 pydantic==1.7.4           # via gluonts
